@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Represents a single chess piece
@@ -9,9 +10,13 @@ import java.util.Collection;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessPiece {
+public class ChessPiece implements PieceMovesCalculator {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final ChessPiece.PieceType pieceType;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.pieceType = type;
     }
 
     /**
@@ -37,7 +42,7 @@ public class ChessPiece {
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return pieceType;
     }
 
     /**
@@ -48,6 +53,40 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        if (getPieceType() == PieceType.BISHOP)
+            return BishopMoves(board, myPosition);
+        throw new RuntimeException("Error with PieceType");
+    }
+
+    @Override
+    public Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition myPosition) {
+
+        return List.of();
+    }
+
+    @Override
+    public Collection<ChessMove> BishopMoves(ChessBoard board, ChessPosition myPosition) {
+        
+        return List.of();
+    }
+
+    @Override
+    public Collection<ChessMove> RookMoves(ChessBoard board, ChessPosition myPosition) {
+        return List.of();
+    }
+
+    @Override
+    public Collection<ChessMove> KnightMoves(ChessBoard board, ChessPosition myPosition) {
+        return List.of();
+    }
+
+    @Override
+    public Collection<ChessMove> QueenMoves(ChessBoard board, ChessPosition myPosition) {
+        return List.of();
+    }
+
+    @Override
+    public Collection<ChessMove> KingMoves(ChessBoard board, ChessPosition myPosition) {
+        return List.of();
     }
 }
