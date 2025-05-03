@@ -69,14 +69,174 @@ public class ChessPiece implements PieceMovesCalculator {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if (getPieceType() == PieceType.BISHOP)
+        if (getPieceType() == PieceType.PAWN)
+            return PawnMoves(board, myPosition);
+        else if (getPieceType() == PieceType.BISHOP)
             return BishopMoves(board, myPosition);
+        else if (getPieceType() == PieceType.ROOK)
+            return RookMoves(board, myPosition);
+        else if (getPieceType() == PieceType.KNIGHT)
+            return KnightMoves(board, myPosition);
+        else if (getPieceType() == PieceType.QUEEN)
+            return QueenMoves(board, myPosition);
+        else if (getPieceType() == PieceType.KING)
+            return KingMoves(board, myPosition);
         throw new RuntimeException("Error with PieceType");
     }
 
     @Override
     public Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition myPosition) {
-        return List.of();
+        ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
+        ChessPiece piece = board.getPiece(myPosition);
+        int row = myPosition.getRow();
+        int column = myPosition.getColumn();
+
+        // if pawn is on white team
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            ChessPosition endPosition; // create ChessPosition datatype
+            ChessMove move; // create ChessMove datatype from start position and end position
+            if (myPosition.getRow() == 2) { // if white pawn is in starting position it can move two spots
+                endPosition = new ChessPosition(row + 2, column); // creates new position
+                ChessPiece occupant = board.getPiece(endPosition);
+                ChessPosition closePosition = new ChessPosition(row + 1, column);
+                ChessPiece closeOccupant = board.getPiece(closePosition);
+                if (occupant == null && closeOccupant == null) {
+                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    moves.add(move);
+                }
+            }
+
+            if (myPosition.getRow() < 8){ // checking if enemy can be captured
+                endPosition = new ChessPosition(row + 1, column);
+                ChessPiece occupant = board.getPiece(endPosition);
+                if (occupant == null) {
+                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    moves.add(move);
+                }
+                ChessPosition adjPosLeft = null;
+                ChessPosition adjPosRight = null;
+                if (myPosition.getColumn() > 1) {
+                    adjPosLeft = new ChessPosition(row + 1, column - 1);
+                }
+                if (myPosition.getColumn() < 8) {
+                    adjPosRight = new ChessPosition(row + 1, column + 1);
+                }
+                if (adjPosLeft != null) {
+                    ChessPiece occupantLeft = board.getPiece(adjPosLeft); // check what piece is at the adjLeft position
+                    if (occupantLeft != null) {
+                        if (occupantLeft.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                            move = new ChessMove(myPosition, adjPosLeft, PieceType.PAWN);
+                            moves.add(move);
+                            if (myPosition.getRow() + 1 == 8) {
+                                moves.add(move);
+                                moves.add(move);
+                                moves.add(move);
+                            }
+                        }
+                    }
+                }
+                if (adjPosRight != null) {
+                    ChessPiece occupantRight = board.getPiece(adjPosRight); // check what piece is at the adjRight position
+                    if (occupantRight != null) {
+                        if (occupantRight.getTeamColor() == ChessGame.TeamColor.BLACK) {
+                            move = new ChessMove(myPosition, adjPosRight, PieceType.PAWN);
+                            moves.add(move);
+                            if (myPosition.getRow() + 1 == 8) {
+                                moves.add(move);
+                                moves.add(move);
+                                moves.add(move);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (myPosition.getRow() + 1 == 8) { // move is added for each version of promotion (first one is already added)
+                endPosition = new ChessPosition(row + 1, column);
+                ChessPiece occupant = board.getPiece(endPosition);
+                if (occupant == null) {
+                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    moves.add(move);
+                    moves.add(move);
+                    moves.add(move);
+                }
+            }
+        }
+
+        // if pawn is on black team
+        else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            ChessPosition endPosition; // create ChessPosition datatype
+            ChessMove move; // create ChessMove datatype from start position and end position
+            if (myPosition.getRow() == 7) { // if black pawn is in starting position it can move two spots
+                endPosition = new ChessPosition(row - 2, column); // creates new position
+                ChessPiece occupant = board.getPiece(endPosition);
+                ChessPosition closePosition = new ChessPosition(row - 1, column);
+                ChessPiece closeOccupant = board.getPiece(closePosition);
+                if (occupant == null && closeOccupant == null) {
+                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    moves.add(move);
+                }
+            }
+
+            if (myPosition.getRow() > 1) { // check if enemy can be captured
+                endPosition = new ChessPosition(row - 1, column);
+                ChessPiece occupant = board.getPiece(endPosition);
+                if (occupant == null) {
+                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    moves.add(move);
+                }
+                ChessPosition adjPosLeft = null;
+                ChessPosition adjPosRight = null;
+                if (myPosition.getColumn() > 1) {
+                    adjPosLeft = new ChessPosition(row - 1, column - 1);
+                }
+                if (myPosition.getColumn() < 8) {
+                    adjPosRight = new ChessPosition(row - 1, column + 1);
+                }
+                if (adjPosLeft != null) {
+                    ChessPiece occupantLeft = board.getPiece(adjPosLeft); // check what piece is at the adjLeft position
+                    if (occupantLeft != null) {
+                        if (occupantLeft.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                            move = new ChessMove(myPosition, adjPosLeft, PieceType.PAWN);
+                            moves.add(move);
+                            if (myPosition.getRow() - 1 == 1) {
+                                moves.add(move);
+                                moves.add(move);
+                                moves.add(move);
+                            }
+                        }
+                    }
+                }
+                if (adjPosRight != null) {
+                    ChessPiece occupantRight = board.getPiece(adjPosRight); // check what piece is at the adjRight position
+                    if (occupantRight != null) {
+                        if (occupantRight.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                            move = new ChessMove(myPosition, adjPosRight, PieceType.PAWN);
+                            moves.add(move);
+                            if (myPosition.getRow() - 1 == 1) {
+                                moves.add(move);
+                                moves.add(move);
+                                moves.add(move);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (myPosition.getRow() - 1 == 1) { // move is added for each version of promotion (first one is already added)
+                endPosition = new ChessPosition(row - 1, column);
+                ChessPiece occupant = board.getPiece(endPosition);
+                if (occupant == null) {
+                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    moves.add(move);
+                    moves.add(move);
+                    moves.add(move);
+                }
+
+            }
+        }
+
+        return moves;
     }
 
     @Override
@@ -86,9 +246,12 @@ public class ChessPiece implements PieceMovesCalculator {
         int row = myPosition.getRow();
         int column = myPosition.getColumn();
         // calculate moves that go up and to the right
-        while (row <= 7 && column <= 7) { // can calculate a move if neither column nor row have exceeded 7
+        while (row <= 8 && column <= 8) { // can calculate a move if neither column nor row have exceeded 7
             row++;
             column++;
+            if (row > 8 || column > 8) {
+                break;
+            }
             ChessPosition endPosition = new ChessPosition(row, column); // creates new position
             ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
             if (occupant == null) {
@@ -110,9 +273,12 @@ public class ChessPiece implements PieceMovesCalculator {
         row = myPosition.getRow();
         column = myPosition.getColumn();
         // calculate moves that go down and to the right
-        while (row >= 2 && column <= 7) { // can calculate a move if row hasn't gone below 2 and column hasn't exceeded 7
+        while (row >= 1 && column <= 8) { // can calculate a move if row hasn't gone below 2 and column hasn't exceeded 7
             row--;
             column++;
+            if (row < 1 || column > 8) {
+                break;
+            }
             ChessPosition endPosition = new ChessPosition(row, column); // creates new position
             ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
             if (occupant == null) {
@@ -133,9 +299,12 @@ public class ChessPiece implements PieceMovesCalculator {
         row = myPosition.getRow();
         column = myPosition.getColumn();
         // calculate moves that go down and to the left
-        while (row >= 2 && column >= 2) { // can calculate a move if neither row nor column has gone bleow 2
+        while (row >= 1 && column >= 1) { // can calculate a move if neither row nor column has gone bleow 2
             row--;
             column--;
+            if (row < 1 || column < 1) {
+                break;
+            }
             ChessPosition endPosition = new ChessPosition(row, column); // creates new position
             ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
             if (occupant == null) {
@@ -156,9 +325,12 @@ public class ChessPiece implements PieceMovesCalculator {
         row = myPosition.getRow();
         column = myPosition.getColumn();
         // calculate moves that go up and to the left
-        while (row <= 7 && column >= 2) { // can calculate a move if row has not exceeded 7 and column hasn't gone below 2
+        while (row <= 8 && column >= 1) { // can calculate a move if row has not exceeded 7 and column hasn't gone below 2
             row++;
             column--;
+            if (row > 8 || column < 1) {
+                break;
+            }
             ChessPosition endPosition = new ChessPosition(row, column); // creates new position
             ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
             if (occupant == null) {

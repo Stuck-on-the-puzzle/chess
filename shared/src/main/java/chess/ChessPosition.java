@@ -34,6 +34,14 @@ public class ChessPosition {
         return col;
     }
 
+    @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "row=" + row +
+                ", col=" + col +
+                '}';
+    }
+
     // override equals() and hash() code
     @Override
     public boolean equals(Object o) {
