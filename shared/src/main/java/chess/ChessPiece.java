@@ -360,6 +360,105 @@ public class ChessPiece implements PieceMovesCalculator {
         ChessPiece piece = board.getPiece(myPosition);
         int row = myPosition.getRow();
         int column = myPosition.getColumn();
+        // calculate moves that go up
+        while (row <= 8) { // can calculate a move if neither column nor row have exceeded 7
+            row++;
+            if (row > 8) {
+                break;
+            }
+            ChessPosition endPosition = new ChessPosition(row, column); // creates new position
+            ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
+            if (occupant == null) {
+                ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                moves.add(move); // add ChessMove to ArrayList
+            }
+            else {
+                if (occupant.getTeamColor() != piece.getTeamColor()) { // if spot is an enemy, you can take the spot
+                    ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                    moves.add(move); // add ChessMove to ArrayList
+                }
+                // if spot is your teammate you cannot move there
+                // you cannot move past any occupant as a rook so break out of while loop
+                break;
+            }
+        }
+
+        // reset starting position
+        row = myPosition.getRow();
+        column = myPosition.getColumn();
+        // calculate moves that go down
+        while (row >= 1) { // can calculate a move if row hasn't gone below 2 and column hasn't exceeded 7
+            row--;
+            if (row < 1) {
+                break;
+            }
+            ChessPosition endPosition = new ChessPosition(row, column); // creates new position
+            ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
+            if (occupant == null) {
+                ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                moves.add(move); // add ChessMove to ArrayList
+            }
+            else {
+                if (occupant.getTeamColor() != piece.getTeamColor()) { // if spot is an enemy, you can take the spot
+                    ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                    moves.add(move); // add ChessMove to ArrayList
+                }
+                // you cannot move past any occupant as a rook so break out of while loop
+                break;
+            }
+        }
+
+        // reset starting position
+        row = myPosition.getRow();
+        column = myPosition.getColumn();
+        // calculate moves that go to the left
+        while (column >= 1) { // can calculate a move if neither row nor column has gone below 2
+            column--;
+            if (column < 1) {
+                break;
+            }
+            ChessPosition endPosition = new ChessPosition(row, column); // creates new position
+            ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
+            if (occupant == null) {
+                ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                moves.add(move); // add ChessMove to ArrayList
+            }
+            else {
+                if (occupant.getTeamColor() != piece.getTeamColor()) { // if spot is an enemy, you can take the spot
+                    ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                    moves.add(move); // add ChessMove to ArrayList
+                }
+                // you cannot move past any occupant as a rook so break out of while loop
+                break;
+            }
+        }
+
+        // reset starting position
+        row = myPosition.getRow();
+        column = myPosition.getColumn();
+        // calculate moves that go to the right
+        while (column <= 8) { // can calculate a move if row has not exceeded 7 and column hasn't gone below 2
+            column++;
+            if (column > 8) {
+                break;
+            }
+            ChessPosition endPosition = new ChessPosition(row, column); // creates new position
+            ChessPiece occupant = board.getPiece(endPosition); // check what piece is at the end position
+            if (occupant == null) {
+                ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                moves.add(move); // add ChessMove to ArrayList
+            }
+            else {
+                if (occupant.getTeamColor() != piece.getTeamColor()) { // if spot is an enemy, you can take the spot
+                    ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK); // create ChessMove datatype from start position and end position
+                    moves.add(move); // add ChessMove to ArrayList
+                }
+                // you cannot move past any occupant as a rook so break out of while loop
+                break;
+            }
+        }
+
+
         return moves;
     }
 
