@@ -610,9 +610,10 @@ public class ChessPiece implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> QueenMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
-        ChessPiece piece = board.getPiece(myPosition);
-        int row = myPosition.getRow();
-        int column = myPosition.getColumn();
+        Collection<ChessMove> bishopmoves = BishopMoves(board, myPosition);
+        Collection<ChessMove> rookmoves = RookMoves(board, myPosition);
+        moves.addAll(bishopmoves);
+        moves.addAll(rookmoves);
         return moves;
     }
 
