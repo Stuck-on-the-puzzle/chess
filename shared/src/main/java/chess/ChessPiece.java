@@ -625,7 +625,58 @@ public class ChessPiece implements PieceMovesCalculator {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
         ChessPiece piece = board.getPiece(myPosition);
         int row = myPosition.getRow();
-        int column = myPosition.getColumn();
+        int col = myPosition.getColumn();
+        ChessPiece currentPiece = board.getPiece(myPosition);
+
+        // move up
+        moves.addAll(moveCalc(board, myPosition, 1, 0)); // last two arguments represent where the king would move
+
+        // move up right
+        moves.addAll(moveCalc(board, myPosition, 1, 1)); // last two arguments represent where the king would move
+
+        // move up left
+        moves.addAll(moveCalc(board, myPosition, 1, -1)); // last two arguments represent where the king would move
+
+        // move right
+        moves.addAll(moveCalc(board, myPosition, 0, 1)); // last two arguments represent where the king would move
+
+        // move up left
+        moves.addAll(moveCalc(board, myPosition, 0, -1)); // last two arguments represent where the king would move
+
+        // move down
+        moves.addAll(moveCalc(board, myPosition, -1, 0)); // last two arguments represent where the king would move
+
+        // move down right
+        moves.addAll(moveCalc(board, myPosition, -1, 1)); // last two arguments represent where the king would move
+
+        // move down left
+        moves.addAll(moveCalc(board, myPosition, -1, -1)); // last two arguments represent where the king would move
+
+        return moves;
+    }
+
+    public Collection<ChessMove> moveCalc(ChessBoard board, ChessPosition myPosition, int rowMove, int colMove) {
+        ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
+        ChessPiece piece = board.getPiece(myPosition);
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
+        int newRow = row + rowMove;
+        int newCol = col + colMove;
+        ChessPiece currentPiece = board.getPiece(myPosition);
+        if (newRow < 8 && newCol< 8 && newRow > 1 && newCol > 1) {
+            ChessPosition endPosition = new ChessPosition(newRow, newCol);
+            ChessPiece occupant = board.getPiece(endPosition);
+            if (occupant != null) {
+                if (currentPiece.getTeamColor() != occupant.getTeamColor()) {
+                    ChessMove move = new ChessMove(myPosition, endPosition, piece.pieceType); // create ChessMove datatype from start position and end position
+                    moves.add(move); // add ChessMove to ArrayList
+                }
+            }
+            else {
+                ChessMove move = new ChessMove(myPosition, endPosition, piece.pieceType); // create ChessMove datatype from start position and end position
+                moves.add(move); // add ChessMove to ArrayList
+            }
+        }
         return moves;
     }
 }
