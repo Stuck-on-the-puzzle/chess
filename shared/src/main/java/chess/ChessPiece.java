@@ -468,138 +468,23 @@ public class ChessPiece implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> KnightMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
-        ChessPiece piece = board.getPiece(myPosition);
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessPiece currentPiece = board.getPiece(myPosition);
         // calculate possible positions
         //up-right
-        if (row < 7 && col < 8) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row + 2, col + 1);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, +2, +1));
         //up-left
-        if (row < 7 && col > 1) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row + 2, col - 1);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, +2, -1));
         //down-right
-        if (row > 2 && col < 8) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row - 2, col + 1);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, -2, +1));
         //down-left
-        if (row > 2 && col > 1) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row - 2, col - 1);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, -2, -1));
         //right-up
-        if (row < 8 && col < 7) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row + 1, col + 2);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, +1, +2));
         //right-down
-        if (row > 1 && col < 7) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row - 1, col + 2);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, -1, +2));
         //left-up
-        if (row < 8 && col > 2) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row + 1, col - 2);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
-
+        moves.addAll(moveCalc(board, myPosition, +1, -2));
         //left-down
-        if (row > 1 && col > 2) {// this checks if move is valid
-            ChessPosition upright = new ChessPosition(row - 1, col - 2);
-            ChessPiece occupant = board.getPiece(upright);
-            if (occupant != null) {
-                if (occupant.getTeamColor() != currentPiece.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                    moves.add(move); // add ChessMove to ArrayList
-                }
-            }
-            else {
-                ChessMove move = new ChessMove(myPosition, upright, PieceType.KNIGHT); // create ChessMove datatype from start position and end position
-                moves.add(move); // add ChessMove to ArrayList
-            }
-        }
+        moves.addAll(moveCalc(board, myPosition, -1, -2));
 
         return moves;
     }
@@ -623,34 +508,23 @@ public class ChessPiece implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> KingMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
-        ChessPiece piece = board.getPiece(myPosition);
-        int row = myPosition.getRow();
-        int col = myPosition.getColumn();
-        ChessPiece currentPiece = board.getPiece(myPosition);
-
+        // calculate all possible positions
         // move up
         moves.addAll(moveCalc(board, myPosition, 1, 0)); // last two arguments represent where the king would move
-
         // move up right
-        moves.addAll(moveCalc(board, myPosition, 1, 1)); // last two arguments represent where the king would move
-
+        moves.addAll(moveCalc(board, myPosition, 1, 1));
         // move up left
-        moves.addAll(moveCalc(board, myPosition, 1, -1)); // last two arguments represent where the king would move
-
+        moves.addAll(moveCalc(board, myPosition, 1, -1));
         // move right
-        moves.addAll(moveCalc(board, myPosition, 0, 1)); // last two arguments represent where the king would move
-
+        moves.addAll(moveCalc(board, myPosition, 0, 1));
         // move up left
-        moves.addAll(moveCalc(board, myPosition, 0, -1)); // last two arguments represent where the king would move
-
+        moves.addAll(moveCalc(board, myPosition, 0, -1));
         // move down
-        moves.addAll(moveCalc(board, myPosition, -1, 0)); // last two arguments represent where the king would move
-
+        moves.addAll(moveCalc(board, myPosition, -1, 0));
         // move down right
-        moves.addAll(moveCalc(board, myPosition, -1, 1)); // last two arguments represent where the king would move
-
+        moves.addAll(moveCalc(board, myPosition, -1, 1));
         // move down left
-        moves.addAll(moveCalc(board, myPosition, -1, -1)); // last two arguments represent where the king would move
+        moves.addAll(moveCalc(board, myPosition, -1, -1));
 
         return moves;
     }
@@ -663,7 +537,7 @@ public class ChessPiece implements PieceMovesCalculator {
         int newRow = row + rowMove;
         int newCol = col + colMove;
         ChessPiece currentPiece = board.getPiece(myPosition);
-        if (newRow < 8 && newCol< 8 && newRow > 1 && newCol > 1) {
+        if (newRow <= 8 && newCol<= 8 && newRow >= 1 && newCol >= 1) {
             ChessPosition endPosition = new ChessPosition(newRow, newCol);
             ChessPiece occupant = board.getPiece(endPosition);
             if (occupant != null) {
