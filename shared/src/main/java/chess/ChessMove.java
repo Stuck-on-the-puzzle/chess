@@ -50,6 +50,7 @@ public class ChessMove {
         return "ChessMove{" +
                 "startPosition=" + startPosition +
                 ", endPosition=" + endPosition +
+                ", promotionPiece=" + promotionPiece +
                 '}';
     }
 

@@ -103,7 +103,7 @@ public class ChessPiece implements PieceMovesCalculator {
                 ChessPosition closePosition = new ChessPosition(row + 1, column);
                 ChessPiece closeOccupant = board.getPiece(closePosition);
                 if (occupant == null && closeOccupant == null) {
-                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    move = new ChessMove(myPosition, endPosition, null); // create ChessMove datatype from start position and end position
                     moves.add(move);
                 }
             }
@@ -111,8 +111,8 @@ public class ChessPiece implements PieceMovesCalculator {
             if (myPosition.getRow() < 8){ // checking if enemy can be captured
                 endPosition = new ChessPosition(row + 1, column);
                 ChessPiece occupant = board.getPiece(endPosition);
-                if (occupant == null) {
-                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                if (occupant == null && row + 1 < 8) {
+                    move = new ChessMove(myPosition, endPosition, null); // create ChessMove datatype from start position and end position
                     moves.add(move);
                 }
                 ChessPosition adjPosLeft = null;
@@ -127,11 +127,18 @@ public class ChessPiece implements PieceMovesCalculator {
                     ChessPiece occupantLeft = board.getPiece(adjPosLeft); // check what piece is at the adjLeft position
                     if (occupantLeft != null) {
                         if (occupantLeft.getTeamColor() == ChessGame.TeamColor.BLACK) {
-                            move = new ChessMove(myPosition, adjPosLeft, PieceType.PAWN);
-                            moves.add(move);
                             if (myPosition.getRow() + 1 == 8) {
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.QUEEN);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.KNIGHT);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.ROOK);
+                                moves.add(move);
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.BISHOP);
+                                moves.add(move);
+                            }
+                            else {
+                                move = new ChessMove(myPosition, adjPosLeft, null);
                                 moves.add(move);
                             }
                         }
@@ -141,11 +148,18 @@ public class ChessPiece implements PieceMovesCalculator {
                     ChessPiece occupantRight = board.getPiece(adjPosRight); // check what piece is at the adjRight position
                     if (occupantRight != null) {
                         if (occupantRight.getTeamColor() == ChessGame.TeamColor.BLACK) {
-                            move = new ChessMove(myPosition, adjPosRight, PieceType.PAWN);
-                            moves.add(move);
                             if (myPosition.getRow() + 1 == 8) {
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.QUEEN);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.KNIGHT);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.ROOK);
+                                moves.add(move);
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.BISHOP);
+                                moves.add(move);
+                            }
+                            else {
+                                move = new ChessMove(myPosition, adjPosRight, null);
                                 moves.add(move);
                             }
                         }
@@ -153,13 +167,17 @@ public class ChessPiece implements PieceMovesCalculator {
                 }
             }
 
-            if (myPosition.getRow() + 1 == 8) { // move is added for each version of promotion (first one is already added)
+            if (myPosition.getRow() + 1 == 8) { // move is added for each version of promotion
                 endPosition = new ChessPosition(row + 1, column);
                 ChessPiece occupant = board.getPiece(endPosition);
                 if (occupant == null) {
-                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    move = new ChessMove(myPosition, endPosition, PieceType.QUEEN); // create ChessMove datatype from start position and end position
                     moves.add(move);
+                    move = new ChessMove(myPosition, endPosition, PieceType.BISHOP);
                     moves.add(move);
+                    move = new ChessMove(myPosition, endPosition, PieceType.ROOK);
+                    moves.add(move);
+                    move = new ChessMove(myPosition, endPosition, PieceType.KNIGHT);
                     moves.add(move);
                 }
             }
@@ -175,7 +193,7 @@ public class ChessPiece implements PieceMovesCalculator {
                 ChessPosition closePosition = new ChessPosition(row - 1, column);
                 ChessPiece closeOccupant = board.getPiece(closePosition);
                 if (occupant == null && closeOccupant == null) {
-                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    move = new ChessMove(myPosition, endPosition, null); // create ChessMove datatype from start position and end position
                     moves.add(move);
                 }
             }
@@ -183,8 +201,8 @@ public class ChessPiece implements PieceMovesCalculator {
             if (myPosition.getRow() > 1) { // check if enemy can be captured
                 endPosition = new ChessPosition(row - 1, column);
                 ChessPiece occupant = board.getPiece(endPosition);
-                if (occupant == null) {
-                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                if (occupant == null && row - 1 > 1) {
+                    move = new ChessMove(myPosition, endPosition, null); // create ChessMove datatype from start position and end position
                     moves.add(move);
                 }
                 ChessPosition adjPosLeft = null;
@@ -199,11 +217,18 @@ public class ChessPiece implements PieceMovesCalculator {
                     ChessPiece occupantLeft = board.getPiece(adjPosLeft); // check what piece is at the adjLeft position
                     if (occupantLeft != null) {
                         if (occupantLeft.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                            move = new ChessMove(myPosition, adjPosLeft, PieceType.PAWN);
-                            moves.add(move);
                             if (myPosition.getRow() - 1 == 1) {
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.QUEEN);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.KNIGHT);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.ROOK);
+                                moves.add(move);
+                                move = new ChessMove(myPosition, adjPosLeft, PieceType.BISHOP);
+                                moves.add(move);
+                            }
+                            else {
+                                move = new ChessMove(myPosition, adjPosLeft, null);
                                 moves.add(move);
                             }
                         }
@@ -213,11 +238,18 @@ public class ChessPiece implements PieceMovesCalculator {
                     ChessPiece occupantRight = board.getPiece(adjPosRight); // check what piece is at the adjRight position
                     if (occupantRight != null) {
                         if (occupantRight.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                            move = new ChessMove(myPosition, adjPosRight, PieceType.PAWN);
-                            moves.add(move);
                             if (myPosition.getRow() - 1 == 1) {
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.QUEEN);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.KNIGHT);
                                 moves.add(move);
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.ROOK);
+                                moves.add(move);
+                                move = new ChessMove(myPosition, adjPosRight, PieceType.BISHOP);
+                                moves.add(move);
+                            }
+                            else {
+                                move = new ChessMove(myPosition, adjPosRight, null);
                                 moves.add(move);
                             }
                         }
@@ -229,12 +261,15 @@ public class ChessPiece implements PieceMovesCalculator {
                 endPosition = new ChessPosition(row - 1, column);
                 ChessPiece occupant = board.getPiece(endPosition);
                 if (occupant == null) {
-                    move = new ChessMove(myPosition, endPosition, PieceType.PAWN); // create ChessMove datatype from start position and end position
+                    move = new ChessMove(myPosition, endPosition, PieceType.QUEEN); // create ChessMove datatype from start position and end position
                     moves.add(move);
+                    move = new ChessMove(myPosition, endPosition, PieceType.BISHOP);
                     moves.add(move);
+                    move = new ChessMove(myPosition, endPosition, PieceType.ROOK);
+                    moves.add(move);
+                    move = new ChessMove(myPosition, endPosition, PieceType.KNIGHT);
                     moves.add(move);
                 }
-
             }
         }
 
@@ -357,12 +392,12 @@ public class ChessPiece implements PieceMovesCalculator {
             ChessPiece occupant = board.getPiece(endPosition);
             if (occupant != null) {
                 if (currentPiece.getTeamColor() != occupant.getTeamColor()) {
-                    ChessMove move = new ChessMove(myPosition, endPosition, piece.pieceType); // create ChessMove datatype from start position and end position
+                    ChessMove move = new ChessMove(myPosition, endPosition, null); // create ChessMove datatype from start position and end position
                     moves.add(move); // add ChessMove to ArrayList
                 }
             }
             else {
-                ChessMove move = new ChessMove(myPosition, endPosition, piece.pieceType); // create ChessMove datatype from start position and end position
+                ChessMove move = new ChessMove(myPosition, endPosition, null); // create ChessMove datatype from start position and end position
                 moves.add(move); // add ChessMove to ArrayList
             }
         }
