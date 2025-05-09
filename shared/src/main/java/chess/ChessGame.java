@@ -9,8 +9,11 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    ///////////////////// include new test cases from github!! ////////////////
+    private TeamColor currentTeam;
 
     public ChessGame() {
+        this.currentTeam = currentTeam;
 
     }
 
@@ -18,7 +21,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return color;
     }
 
     /**
@@ -46,6 +49,11 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        // possible implementation:
+        // check if moving will put king in check if so, there are no valid moves
+        // if the piece is a king, make sure it is not in danger
+        // if king is in check, it must be protected
+        // otherwise pieceMoves should take care of it
         throw new RuntimeException("Not implemented");
     }
 
@@ -56,6 +64,8 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // updates board when it comes to capturing a piece, promoting a pawn, or just moving a piece
+        // this also might update what color turn it is
         throw new RuntimeException("Not implemented");
     }
 
