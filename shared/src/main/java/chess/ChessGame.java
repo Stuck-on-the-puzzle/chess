@@ -65,10 +65,10 @@ public class ChessGame {
         for (ChessMove move : possibleMoves) {
             ChessGame dummyGame = new ChessGame();
             dummyGame.setBoard(gameBoard.clone());
-            dummyGame.setTeamTurn(getTeamTurn());
+            dummyGame.setTeamTurn(piece.getTeamColor());
             try {
                 dummyGame.makeMove(move);
-                if (!dummyGame.isInCheck(currentTeam)) {
+                if (!dummyGame.isInCheck(piece.getTeamColor())) {
                     moves.add(move);
                 }
             } catch (InvalidMoveException err) {}
