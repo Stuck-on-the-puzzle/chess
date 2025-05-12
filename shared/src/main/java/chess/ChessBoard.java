@@ -69,6 +69,22 @@ public class ChessBoard {
         addPiece(new ChessPosition(8, 5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
     }
 
+    // cloning board for move validation
+    @Override
+    public ChessBoard clone() {
+        ChessBoard copy = new ChessBoard();
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = this.getPiece(pos);
+                if (piece != null) {
+                    copy.addPiece(pos, new ChessPiece(piece.getTeamColor(), piece.getPieceType()));
+                }
+            }
+        }
+        return copy;
+    }
+
     // override equals() and hash() code
     @Override
     public boolean equals(Object o) {

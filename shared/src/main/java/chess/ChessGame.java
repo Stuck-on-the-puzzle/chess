@@ -52,37 +52,27 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        // possible implementation:
-        // if the piece is a king, make sure it is not in danger
-        // otherwise pieceMoves should take care of it
         ArrayList<ChessMove> moves = new ArrayList<>();
         ChessPiece piece = gameBoard.getPiece(startPosition);
         // if there is no piece in startPosition, return null
         if (piece == null) {
             return null;
         }
+        // get a list of all the possible move to check legality
         ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         possibleMoves.addAll(piece.pieceMoves(gameBoard, startPosition));
-
-        // if king is in check, it must be protected
-        if (isInCheck(currentTeam)) {
+        // loop through moves in possible moves and see if any move leaves king in check or can protect the king
+        for (ChessMove move : possibleMoves) {
             ChessGame dummyGame = new ChessGame();
-            dummyGame.setBoard(gameBoard);
+            dummyGame.setBoard(gameBoard.clone());
+            dummyGame.setTeamTurn(getTeamTurn());
+            try {
+                dummyGame.makeMove(move);
+                if (!dummyGame.isInCheck(currentTeam)) {
+                    moves.add(move);
+                }
+            } catch (InvalidMoveException err) {}
         }
-        // loop through moves in possible moves and add the legal ones to the validMoves collection
-        for (ChessMove move: possibleMoves) {
-            ChessGame dummyGame = new ChessGame();
-            dummyGame.setBoard(gameBoard);
-//            dummyGame.makeMove(move);
-            if (!dummyGame.isInCheck(currentTeam)) { // check if move puts king in check, if not add move to collection
-                moves.add(move);
-            }
-        }
-
-
-        //
-
-
         return moves;
     }
 
@@ -101,13 +91,15 @@ public class ChessGame {
         if (piece != null) {
             if (piece.getTeamColor() != currentTeam) {
                 throw new InvalidMoveException("Wrong color team tried to play");
-            } else if (validMoves(start).isEmpty()) {
-                throw new InvalidMoveException("Invalid move");
-            } else {
+            }
+//            else if (!legalMoves.contains(move)) {
+//                throw new InvalidMoveException("Invalid move");
+//            }
+            else {
                 gameBoard.addPiece(end, piece);
+                gameBoard.addPiece(start, null);
             }
         }
-
     }
 
     /**
@@ -224,5 +216,17 @@ public class ChessGame {
                 "currentTeam=" + currentTeam +
                 ", gameBoard=" + gameBoard +
                 '}';
+    }
+
+    @Override
+    public ChessGame clone() {
+        try {
+            ChessGame clonedGame = (ChessGame) super.clone();
+            // Deep copy the board
+            clonedGame.gameBoard = this.gameBoard.clone();
+            return clonedGame;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError("Cloning not supported", e);
+        }
     }
 }
