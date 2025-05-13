@@ -175,13 +175,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ChessPosition kingPos = getKingPosition(teamColor);
-        TeamColor enemyColor;
-        if (teamColor == TeamColor.WHITE) {enemyColor = TeamColor.BLACK;}
-        else {enemyColor = TeamColor.WHITE;}
-        Collection<ChessPosition> teamMoves = getTeamPossibleEndPos(teamColor);
-        Collection<ChessPosition> enemyMoves = getTeamPossibleEndPos(enemyColor);
-        return teamMoves.isEmpty() && enemyMoves.contains(kingPos);
+        return emptyTeamMoves(teamColor) && enemyCanReachKing(teamColor);
     }
 
     /**
@@ -192,13 +186,21 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        return emptyTeamMoves(teamColor) && !enemyCanReachKing(teamColor);
+    }
+
+    public boolean emptyTeamMoves(TeamColor teamColor) {
+        Collection<ChessPosition> teamMoves = getTeamPossibleEndPos(teamColor);
+        return teamMoves.isEmpty();
+    }
+
+    public boolean enemyCanReachKing(TeamColor teamColor) {
         ChessPosition kingPos = getKingPosition(teamColor);
         TeamColor enemyColor;
         if (teamColor == TeamColor.WHITE) {enemyColor = TeamColor.BLACK;}
         else {enemyColor = TeamColor.WHITE;}
-        Collection<ChessPosition> teamMoves = getTeamPossibleEndPos(teamColor);
         Collection<ChessPosition> enemyMoves = getTeamPossibleEndPos(enemyColor);
-        return teamMoves.isEmpty() && !enemyMoves.contains(kingPos);
+        return enemyMoves.contains(kingPos);
     }
 
 
