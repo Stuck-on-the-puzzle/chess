@@ -175,7 +175,13 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPos = getKingPosition(teamColor);
+        TeamColor enemyColor;
+        if (teamColor == TeamColor.WHITE) {enemyColor = TeamColor.BLACK;}
+        else {enemyColor = TeamColor.WHITE;}
+        Collection<ChessPosition> teamMoves = getTeamPossibleEndPos(teamColor);
+        Collection<ChessPosition> enemyMoves = getTeamPossibleEndPos(enemyColor);
+        return teamMoves.isEmpty() && enemyMoves.contains(kingPos);
     }
 
     /**
@@ -186,7 +192,27 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not yet implemented");
+    }
+
+
+    public Collection<ChessPosition> getTeamPossibleEndPos(TeamColor teamColor) {
+        Collection<ChessPosition> teamPos = new ArrayList<>();
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                ChessPiece piece = gameBoard.getPiece(pos);
+                if (piece != null) {
+                    if (piece.getTeamColor() == teamColor) {
+                        ChessMove[] moves = validMoves(pos).toArray(new ChessMove[0]);
+                        for (ChessMove move : moves) {
+                            teamPos.add(move.getEndPosition());
+                        }
+                    }
+                }
+            }
+        }
+        return teamPos;
     }
 
     /**
