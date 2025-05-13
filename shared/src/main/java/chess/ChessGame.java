@@ -192,7 +192,13 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not yet implemented");
+        ChessPosition kingPos = getKingPosition(teamColor);
+        TeamColor enemyColor;
+        if (teamColor == TeamColor.WHITE) {enemyColor = TeamColor.BLACK;}
+        else {enemyColor = TeamColor.WHITE;}
+        Collection<ChessPosition> teamMoves = getTeamPossibleEndPos(teamColor);
+        Collection<ChessPosition> enemyMoves = getTeamPossibleEndPos(enemyColor);
+        return teamMoves.isEmpty() && !enemyMoves.contains(kingPos);
     }
 
 
