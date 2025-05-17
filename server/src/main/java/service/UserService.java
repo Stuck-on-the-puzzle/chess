@@ -8,7 +8,6 @@ public class UserService {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
-    // I may need to make record classes for Requests/Results? see service classes video near the end in phase 2 videos
     public UserData register(UserData u) {
         // verify input
         // validate passed in authToken
