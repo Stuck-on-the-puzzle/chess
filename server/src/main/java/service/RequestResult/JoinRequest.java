@@ -1,4 +1,4 @@
 package service.RequestResult;
 
-public class JoinRequest {
+public record JoinRequest(String playerColor, String gameID, String authToken){
 }

@@ -1,4 +1,4 @@
 package service.RequestResult;
 
-public record LoginResult() {
+public record LoginResult(String username, String authToken, String message) {
 }

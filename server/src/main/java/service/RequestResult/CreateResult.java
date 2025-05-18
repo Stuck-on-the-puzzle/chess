@@ -1,4 +1,4 @@
 package service.RequestResult;
 
-public record CreateResult() {
+public record CreateResult(String gameID, String message) {
 }

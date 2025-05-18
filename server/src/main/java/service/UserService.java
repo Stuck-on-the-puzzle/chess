@@ -2,13 +2,14 @@ package service;
 
 import dataaccess.*;
 import model.UserData;
+import service.RequestResult.*;
 
 public class UserService {
 
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
-    public UserData register(UserData u) {
+    public RegisterResult register(RegisterRequest registerRequest) {
         // verify input
         // validate passed in authToken
         // Check requested username is not already taken
@@ -18,6 +19,9 @@ public class UserService {
         // insert authToken into database
         // return user Data
 
-        return u;
+        return null;
     }
+
+    public LoginResult login(LoginRequest loginRequest) {}
+    public void logout(LogoutRequest logoutRequest) {}
 }

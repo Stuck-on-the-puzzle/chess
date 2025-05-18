@@ -1,4 +1,4 @@
 package service.RequestResult;
 
-public record LogoutResult() {
+public record LogoutResult(String message) {
 }

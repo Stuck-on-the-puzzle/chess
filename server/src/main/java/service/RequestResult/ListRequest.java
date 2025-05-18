@@ -1,4 +1,4 @@
 package service.RequestResult;
 
-public record ListRequest() {
+public record ListRequest(String authToken) {
 }

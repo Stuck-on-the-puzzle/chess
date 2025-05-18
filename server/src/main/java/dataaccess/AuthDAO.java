@@ -1,10 +1,13 @@
 package dataaccess;
 
+import model.AuthData;
+
 public interface AuthDAO {
+    // implement interfaces with database that have to do with authentication
 
-    // implement interfaces with database
-    // that have to do with authentication
-
-    // potential useful methods:
-    // createAuth, getAuth, deleteAuth, clear
+    void createAuth(AuthData authData); // method to createAuth and put it in database
+    void deleteAuth(String authToken); // method to delete authToken from database
+    AuthData getAuth(String authToken) throws DataAccessException; // method to get authToken from the database
+    // if there is an issue getting the AuthData from the database, and exception is thrown.
+    void clear();
 }

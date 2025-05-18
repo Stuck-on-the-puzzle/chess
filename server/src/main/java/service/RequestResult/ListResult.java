@@ -1,4 +1,6 @@
 package service.RequestResult;
 
-public record ListResult() {
+import java.util.ArrayList;
+
+public record ListResult(ArrayList<String> games, String message ) {
 }
