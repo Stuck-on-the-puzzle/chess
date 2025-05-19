@@ -1,17 +1,23 @@
 package dataaccess;
 
 import model.UserData;
+import service.BaseClass;
 
 import java.util.HashSet;
 
-public class MemoryUserDAO implements UserDAO {
+public class MemoryUserDAO implements UserDAO{
     // use to store user data in a list or map for phase 3
 
     HashSet<UserData> userDatadb;
 
     @Override
-    public void createUser(UserData userData) {
-        userDatadb.add(userData);
+    public void createUser(UserData userData) throws DataAccessException{
+        try {
+            getUser(userData.username());
+        } catch (DataAccessException e) {
+            userDatadb.add(userData);
+        }
+        throw new DataAccessException("User already exists");
     }
 
     @Override
@@ -27,6 +33,20 @@ public class MemoryUserDAO implements UserDAO {
             }
         }
         throw new DataAccessException("Cannot get UserData");
+    }
+
+    public boolean checkCredentials (String username, String password) throws DataAccessException{
+        for (UserData user: userDatadb) {
+            if (user.username().equals(username)) {
+                if (user.password().equals(password)) {
+                    return true;
+                }
+                else {
+                    throw new DataAccessException("Incorrect Password");
+                }
+            }
+        }
+        throw new DataAccessException("User Does Not Exist");
     }
 
     @Override

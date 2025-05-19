@@ -1,27 +1,42 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.UserData;
 import service.RequestResult.*;
 
-public class UserService {
+import java.util.UUID;
+
+public class UserService extends BaseClass {
 
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
-    public RegisterResult register(RegisterRequest registerRequest) {
-        // verify input
-        // validate passed in authToken
-        // Check requested username is not already taken
-        // Create new User Mode object: User u = new User(...)
-        // Insert new user into database by calling UserDao.createUser(u)
-        // Log in user and create new AuthToken model object.
-        // insert authToken into database
-        // return user Data
+    UserDAO userDAO;
+    AuthDAO authDAO;
 
-        return null;
+    public RegisterResult register(UserData registerRequest) throws DataAccessException {
+        // verify input
+        String username = registerRequest.username();
+        try { // Check requested username. If not already taken, make new user
+            userDAO.createUser(registerRequest);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Username already taken");
+        }
+        String authToken = generateToken();
+        authDAO.createAuth(new AuthData(authToken, username));
+        // The user should be logged in now
+
+        return new RegisterResult(username, authToken, "Register User Successful");
     }
 
-    public LoginResult login(LoginRequest loginRequest) {}
-    public void logout(LogoutRequest logoutRequest) {}
+//    public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
+//
+//    }
+
+//    public void logout(LogoutRequest logoutRequest) {}
+
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
 }
