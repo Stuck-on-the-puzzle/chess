@@ -46,7 +46,8 @@ public class UserService extends BaseClass {
         return new LoginResult(username, authToken, "Login Successful");
     }
 
-    public LogoutResult logout(String authToken) throws DataAccessException{
+    public LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException{
+        String authToken = logoutRequest.authToken();
         isAuthenticated(authToken);
         authDAO.deleteAuth(authToken);
         // user should be logged out now

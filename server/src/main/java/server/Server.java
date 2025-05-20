@@ -4,6 +4,10 @@ import spark.*;
 
 public class Server {
 
+
+    UserHandler userHandler;
+    GameHandler gameHandler;
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
