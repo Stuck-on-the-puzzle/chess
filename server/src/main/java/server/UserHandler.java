@@ -7,8 +7,9 @@ import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;
 import model.UserData;
+import spark.Route;
 
-public class UserHandler {
+public abstract class UserHandler implements Route {
 
     UserService userService;
 

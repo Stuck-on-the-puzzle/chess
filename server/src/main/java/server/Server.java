@@ -7,6 +7,7 @@ public class Server {
 
     UserHandler userHandler;
     GameHandler gameHandler;
+    ClearHandler clearHandler;
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -14,9 +15,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-
-        //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
+        Spark.delete("/db", clearHandler);
 
         Spark.awaitInitialization();
         return Spark.port();
