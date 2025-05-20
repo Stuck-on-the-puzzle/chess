@@ -1,8 +1,6 @@
 package service;
 
-import dataaccess.AuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
+import dataaccess.*;
 import model.GameData;
 import service.RequestResult.*;
 
@@ -11,8 +9,8 @@ public class GameService extends BaseClass {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the createGame, joinGame, listGames functions
 
-    AuthDAO authDAO;
-    GameDAO gameDAO;
+    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final GameDAO gameDAO = new MemoryGameDAO();
 
     public CreateResult createGame(CreateRequest create) throws DataAccessException {
         isAuthenticated(create.authToken());

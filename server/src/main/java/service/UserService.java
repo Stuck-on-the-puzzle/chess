@@ -12,8 +12,8 @@ public class UserService extends BaseClass {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
-    UserDAO userDAO;
-    AuthDAO authDAO;
+    private final UserDAO userDAO = new MemoryUserDAO();
+    private final AuthDAO authDAO = new MemoryAuthDAO();
 
     public RegisterResult register(UserData registerRequest) throws DataAccessException {
         // verify input
