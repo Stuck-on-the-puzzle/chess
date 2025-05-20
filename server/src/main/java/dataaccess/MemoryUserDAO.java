@@ -8,7 +8,11 @@ import java.util.HashSet;
 public class MemoryUserDAO implements UserDAO{
     // use to store user data in a list or map for phase 3
 
-    HashSet<UserData> userDatadb;
+    private final HashSet<UserData> userDatadb;
+
+    public MemoryUserDAO() {
+        this.userDatadb = new HashSet<>();
+    }
 
     @Override
     public void createUser(UserData userData) throws DataAccessException{
@@ -16,6 +20,7 @@ public class MemoryUserDAO implements UserDAO{
             getUser(userData.username());
         } catch (DataAccessException e) {
             userDatadb.add(userData);
+            return;
         }
         throw new DataAccessException("User already exists");
     }

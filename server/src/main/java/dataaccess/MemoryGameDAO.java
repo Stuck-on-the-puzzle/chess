@@ -9,7 +9,11 @@ import java.util.HashSet;
 public class MemoryGameDAO implements GameDAO{
     // use to store game data in a list or map for phase 3
 
-    HashSet<GameData> gameDatadb;
+    private final HashSet<GameData> gameDatadb;
+
+    public MemoryGameDAO() {
+        this.gameDatadb = new HashSet<>();
+    }
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {

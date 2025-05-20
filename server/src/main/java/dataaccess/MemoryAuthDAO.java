@@ -7,7 +7,11 @@ import java.util.HashSet;
 public class MemoryAuthDAO implements AuthDAO {
     // use to store authentication data in a list or map for phase 3
 
-    HashSet<AuthData> authDatadb;
+    private final HashSet<AuthData> authDatadb;
+
+    public MemoryAuthDAO() {
+        this.authDatadb = new HashSet<>();
+    }
 
     @Override
     public void createAuth(AuthData authData) {

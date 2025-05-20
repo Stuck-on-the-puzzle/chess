@@ -1,0 +1,25 @@
+package server;
+
+import com.google.gson.Gson;
+import dataaccess.DataAccessException;
+import service.GameService;
+import service.RequestResult.CreateRequest;
+import spark.Request;
+import spark.Response;
+import spark.Route;
+
+public class CreateHandler implements Route {
+
+    private final GameService gameService;
+    private final Gson gson = new Gson();
+
+    public CreateHandler(GameService gameService) {
+        this.gameService = gameService;
+    }
+
+    @Override
+    public Object handle(Request req, Response res)  throws DataAccessException {
+        CreateRequest createRequest = gson.fromJson(req.body(), CreateRequest.class);
+        return gson.toJson(gameService.createGame(createRequest));
+    }
+}

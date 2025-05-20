@@ -3,6 +3,7 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import service.RequestResult.ClearResult;
 
 public class ClearService {
 
@@ -13,9 +14,11 @@ public class ClearService {
     AuthDAO authDAO;
     GameDAO gameDAO;
 
-    public void clear() {
+    public ClearResult clear() {
         userDAO.clear();
         authDAO.clear();
         gameDAO.clear();
+
+        return new ClearResult("Clear Successful");
     }
 }
