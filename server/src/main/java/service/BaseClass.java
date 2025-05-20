@@ -6,7 +6,7 @@ public class BaseClass {
 
     AuthDAO authDAO;
 
-    public boolean isAuthenticated(String authToken ) throws DataAccessException {
+    public boolean isAuthenticated(String authToken) throws DataAccessException {
         try {
             AuthData a = authDAO.getAuth(authToken);
         } catch (DataAccessException e) {

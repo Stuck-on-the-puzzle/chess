@@ -30,9 +30,21 @@ public class UserService extends BaseClass {
         return new RegisterResult(username, authToken, "Register User Successful");
     }
 
-//    public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
-//
-//    }
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+        // check if user exists. If it does, check if password matches
+        // if credentials are all good, create authToken and proceed
+        try {
+            userDAO.checkCredentials(username, password);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error with Login");
+        }
+        String authToken = generateToken();
+        // The user should be logged in now
+
+        return new LoginResult(username, authToken, "Login Successful");
+    }
 
 //    public void logout(LogoutRequest logoutRequest) {}
 
