@@ -41,18 +41,21 @@ public class UserService extends BaseClass {
             throw new DataAccessException("Error with Login");
         }
         String authToken = generateToken();
-        // The user should be logged in now
+        // user should be logged in now
 
         return new LoginResult(username, authToken, "Login Successful");
     }
 
-    public void logout(String authToken) throws DataAccessException{
+    public LogoutResult logout(String authToken) throws DataAccessException{
         if (isAuthenticated(authToken)) {
             authDAO.deleteAuth(authToken);
         }
         else {
             throw new DataAccessException("Unauthorized");
         }
+        // user should be logged out now
+
+        return new LogoutResult("Logout Successful");
     }
 
     public static String generateToken() {
