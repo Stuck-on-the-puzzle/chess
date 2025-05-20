@@ -12,7 +12,12 @@ public class MemoryGameDAO implements GameDAO{
     HashSet<GameData> gameDatadb;
 
     @Override
-    public void createGame(GameData gameData) {
+    public void createGame(GameData gameData) throws DataAccessException {
+        for (GameData game : gameDatadb) {
+            if (game == gameData) {
+                throw new DataAccessException("Game Already Exists");
+            }
+        }
         gameDatadb.add(gameData);
     }
 

@@ -8,7 +8,7 @@ public interface GameDAO {
     // implement interfaces with database that have to do with the games
 
     // when accessing database, you should have an exception to throw
-    void createGame(GameData gameData); // adds GameData to the database
+    void createGame(GameData gameData) throws DataAccessException; // adds GameData to the database
     void updateGame(GameData gameData); // updates GameData in the database
     GameData getGame(int gameID) throws DataAccessException; // gets GameData from the database
     // if there is an issue getting the GameData from the database, and exception is thrown.

@@ -47,12 +47,8 @@ public class UserService extends BaseClass {
     }
 
     public LogoutResult logout(String authToken) throws DataAccessException{
-        if (isAuthenticated(authToken)) {
-            authDAO.deleteAuth(authToken);
-        }
-        else {
-            throw new DataAccessException("Unauthorized");
-        }
+        isAuthenticated(authToken);
+        authDAO.deleteAuth(authToken);
         // user should be logged out now
 
         return new LogoutResult("Logout Successful");

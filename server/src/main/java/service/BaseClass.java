@@ -5,11 +5,11 @@ public class BaseClass {
 
     AuthDAO authDAO;
 
-    public boolean isAuthenticated(String authToken) {
+    public boolean isAuthenticated(String authToken) throws DataAccessException{
         try {
             authDAO.getAuth(authToken);
         } catch (DataAccessException e) {
-            return false;
+            throw new DataAccessException("Unauthorized");
         }
         return true;
     }
