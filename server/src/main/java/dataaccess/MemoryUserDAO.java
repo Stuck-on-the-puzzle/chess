@@ -35,11 +35,11 @@ public class MemoryUserDAO implements UserDAO{
         throw new DataAccessException("Cannot get UserData");
     }
 
-    public boolean checkCredentials (String username, String password) throws DataAccessException{
+    public void checkCredentials (String username, String password) throws DataAccessException{
         for (UserData user: userDatadb) {
             if (user.username().equals(username)) {
                 if (user.password().equals(password)) {
-                    return true;
+                    return;
                 }
                 else {
                     throw new DataAccessException("Incorrect Password");

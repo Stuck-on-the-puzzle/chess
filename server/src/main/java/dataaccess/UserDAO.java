@@ -11,6 +11,6 @@ public interface UserDAO {
     void deleteUser(String username); // deletes UserData from the database - this will not be implemented based on lecture video
     UserData getUser(String username) throws DataAccessException; // gets UserData from the database
     // if there is an issue getting the UserData from the database, and exception is thrown.
-    boolean checkCredentials (String username, String password)  throws DataAccessException;
+    void checkCredentials (String username, String password)  throws DataAccessException;
     void clear();
 }
