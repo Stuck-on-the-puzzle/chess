@@ -46,7 +46,14 @@ public class UserService extends BaseClass {
         return new LoginResult(username, authToken, "Login Successful");
     }
 
-//    public void logout(LogoutRequest logoutRequest) {}
+    public void logout(String authToken) throws DataAccessException{
+        if (isAuthenticated(authToken)) {
+            authDAO.deleteAuth(authToken);
+        }
+        else {
+            throw new DataAccessException("Unauthorized");
+        }
+    }
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
