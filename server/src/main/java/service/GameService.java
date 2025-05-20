@@ -3,18 +3,14 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.GameData;
 import service.RequestResult.*;
-
-import java.util.ArrayList;
 
 public class GameService extends BaseClass {
 
     // implements the main functions of the program (three of the seven functions)
     // this class implements the createGame, joinGame, listGames functions
 
-    UserDAO userDAO;
     AuthDAO authDAO;
     GameDAO gameDAO;
 
@@ -26,17 +22,22 @@ public class GameService extends BaseClass {
         } catch (DataAccessException e) {
             throw new DataAccessException("Game Already Exists");
         }
-        
+
         return new CreateResult(gameID, "Game Created Successfully");
     }
 
     public JoinResult joinGame(JoinRequest join) throws DataAccessException {
+        int gameID = join.gameID();
+        String color = join.playerColor(); // will be WHITE or BLACK
+        String username = authDAO.getAuth(join.authToken()).username();
+        isAuthenticated(join.authToken());
+        gameDAO.joinGame(gameID, color, username);
+
         return new JoinResult("Game Joined Successfully");
     }
 
     public ListResult listGames(ListRequest list) throws DataAccessException{
-
-        ArrayList<String> games = new ArrayList<>();
-        return new ListResult(games, "Listed Games Successfully");
+        isAuthenticated(list.authToken());
+        return new ListResult(gameDAO.listGames(), "Listed Games Successfully");
     }
 }

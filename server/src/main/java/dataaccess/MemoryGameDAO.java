@@ -48,6 +48,32 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
+    public void joinGame(int gameID, String playerColor, String username) throws DataAccessException{
+        for (GameData game : gameDatadb) {
+            if (playerColor.equals("WHITE")) {
+                if (game.whiteUsername() == null) {
+                    throw new DataAccessException("Spot Already Taken");
+                }
+                else {
+                    gameDatadb.remove(game);
+                    GameData joinedGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                    gameDatadb.add(joinedGame);
+                }
+            }
+            else {
+                if (game.blackUsername() == null) {
+                    throw new DataAccessException("Spot Already Taken");
+                }
+                else {
+                    gameDatadb.remove(game);
+                    GameData joinedGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                    gameDatadb.add(joinedGame);
+                }
+            }
+        }
+    }
+
+    @Override
     public void clear() {
         gameDatadb.clear();
     }
