@@ -3,7 +3,11 @@ import dataaccess.*;
 
 public class BaseClass {
 
-    AuthDAO authDAO;
+    protected final AuthDAO authDAO;
+
+    public BaseClass(AuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
 
     public void isAuthenticated(String authToken) throws DataAccessException{
         try {

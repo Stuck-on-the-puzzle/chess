@@ -2,9 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.UserData;
-import service.RequestResult.LoginRequest;
-import service.RequestResult.LogoutRequest;
+import service.RequestResult.LogoutResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -21,7 +19,15 @@ public class LogoutHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res)  throws DataAccessException {
-        LogoutRequest logoutRequest = gson.fromJson(req.body(), LogoutRequest.class);
-        return gson.toJson(userService.logout(logoutRequest));
+        String authToken = req.headers("authorization");
+        LogoutResult logoutResult;
+        try {
+            logoutResult = userService.logout(authToken);
+            res.status(200);
+        } catch (DataAccessException e) {
+            res.status(401);
+            logoutResult = new LogoutResult("Error Logging Out");
+        }
+        return gson.toJson(logoutResult);
     }
 }

@@ -13,16 +13,19 @@ public class UserService extends BaseClass {
     // this class implements the register, login, logout functions
 
     private final UserDAO userDAO;
-    private final AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
+        super(authDAO);
         this.userDAO = userDAO;
-        this.authDAO = authDAO;
     }
 
     public RegisterResult register(UserData registerRequest) throws DataAccessException {
         // verify input
         String username = registerRequest.username();
+        String password = registerRequest.password();
+        if (username == null || password == null) {
+            throw new DataAccessException("Missing Username or Password");
+        }
         try { // Check requested username. If not already taken, make new user
             userDAO.createUser(registerRequest);
         } catch (DataAccessException e) {
@@ -32,7 +35,7 @@ public class UserService extends BaseClass {
         authDAO.createAuth(new AuthData(authToken, username));
         // The user should be logged in now
 
-        return new RegisterResult(username, authToken, "Register User Successful");
+        return new RegisterResult(username, authToken);
     }
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
@@ -43,18 +46,13 @@ public class UserService extends BaseClass {
         if (username == null || password == null) {
             throw new DataAccessException("Missing Username or Password");
         }
-        try {
-            userDAO.checkCredentials(username, password);
-        } catch (DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        userDAO.checkCredentials(username, password);
         String authToken = generateToken();
         // user should be logged in now
         return new LoginResult(username, authToken);
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException{
-        String authToken = logoutRequest.authToken();
+    public LogoutResult logout(String authToken) throws DataAccessException{
         isAuthenticated(authToken);
         authDAO.deleteAuth(authToken);
         // user should be logged out now

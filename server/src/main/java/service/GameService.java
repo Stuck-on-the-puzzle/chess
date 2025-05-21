@@ -10,11 +10,10 @@ public class GameService extends BaseClass {
     // this class implements the createGame, joinGame, listGames functions
 
     private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
 
     public GameService(GameDAO gameDAO, AuthDAO authDAO) {
+        super(authDAO);
         this.gameDAO = gameDAO;
-        this.authDAO = authDAO;
     }
 
     public CreateResult createGame(CreateRequest create) throws DataAccessException {

@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.UserData;
+import service.RequestResult.RegisterResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -20,6 +21,18 @@ public class RegisterHandler implements Route {
     @Override
     public Object handle(Request req, Response res)  throws DataAccessException {
         UserData userData = gson.fromJson(req.body(), UserData.class);
-        return gson.toJson(userService.register(userData));
+        RegisterResult registerResult;
+        try {
+            registerResult = userService.register(userData);
+        } catch (DataAccessException e) {
+            if (e.getMessage().equals("Username already taken")) {
+                res.status(403);
+            }
+            else {
+                res.status(400);
+            }
+            registerResult = new RegisterResult("Error Registering");
+        }
+        return gson.toJson(registerResult);
     }
 }
