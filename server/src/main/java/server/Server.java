@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -20,13 +21,21 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        registerHandler = new RegisterHandler(new UserService());
-        loginHandler = new LoginHandler(new UserService());
-        logoutHandler = new LogoutHandler(new UserService());
-        createHandler = new CreateHandler(new GameService());
-        joinHandler = new JoinHandler(new GameService());
-        listHandler = new ListHandler(new GameService());
-        clearHandler = new ClearHandler(new ClearService());
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+
+        UserService userService = new UserService(userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO, authDAO);
+        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+
+        registerHandler = new RegisterHandler(userService);
+        loginHandler = new LoginHandler(userService);
+        logoutHandler = new LogoutHandler(userService);
+        createHandler = new CreateHandler(gameService);
+        joinHandler = new JoinHandler(gameService);
+        listHandler = new ListHandler(gameService);
+        clearHandler = new ClearHandler(clearService);
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", clearHandler); // clear

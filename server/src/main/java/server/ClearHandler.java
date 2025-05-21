@@ -18,8 +18,9 @@ public class ClearHandler implements Route{
     }
 
     @Override
-    public Object handle(Request req, Response res)  throws DataAccessException {
-        ClearResult clearMes = clearService.clear();
+    public Object handle(Request req, Response res) {
+
+      ClearResult clearMes = clearService.clear();
       return gson.toJson(clearMes);
     }
 }

@@ -9,8 +9,13 @@ public class GameService extends BaseClass {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the createGame, joinGame, listGames functions
 
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
+
+    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
+        this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
+    }
 
     public CreateResult createGame(CreateRequest create) throws DataAccessException {
         isAuthenticated(create.authToken());

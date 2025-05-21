@@ -12,8 +12,13 @@ public class UserService extends BaseClass {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+
+    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+    }
 
     public RegisterResult register(UserData registerRequest) throws DataAccessException {
         // verify input
@@ -42,8 +47,7 @@ public class UserService extends BaseClass {
         }
         String authToken = generateToken();
         // user should be logged in now
-
-        return new LoginResult(username, authToken, "Login Successful");
+        return new LoginResult(username, authToken);
     }
 
     public LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException{

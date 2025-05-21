@@ -2,8 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import model.UserData;
 import service.RequestResult.LoginRequest;
+import service.RequestResult.LoginResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -21,6 +21,14 @@ public class LoginHandler implements Route {
     @Override
     public Object handle(Request req, Response res)  throws DataAccessException {
         LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
-        return gson.toJson(userService.login(loginRequest));
+        LoginResult loginResult;
+        try {
+            res.status(200);
+            loginResult = userService.login(loginRequest);
+        } catch (DataAccessException e) {
+            res.status(401);
+            loginResult = new LoginResult("Error Logging in");
+        }
+        return gson.toJson(loginResult);
     }
 }
