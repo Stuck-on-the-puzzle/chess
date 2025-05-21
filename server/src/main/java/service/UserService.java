@@ -40,10 +40,13 @@ public class UserService extends BaseClass {
         String password = loginRequest.password();
         // check if user exists. If it does, check if password matches
         // if credentials are all good, create authToken and proceed
+        if (username == null || password == null) {
+            throw new DataAccessException("Missing Username or Password");
+        }
         try {
             userDAO.checkCredentials(username, password);
         } catch (DataAccessException e) {
-            throw new DataAccessException("Error with Login");
+            throw new DataAccessException(e.getMessage());
         }
         String authToken = generateToken();
         // user should be logged in now
