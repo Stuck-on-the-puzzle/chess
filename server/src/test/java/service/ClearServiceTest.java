@@ -3,7 +3,7 @@ package service;
 import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.RequestResult.registerResult;
+import service.requestResult.RegisterResult;
 
 public class ClearServiceTest {
 
@@ -35,7 +35,7 @@ public class ClearServiceTest {
     @Test
     @DisplayName("Clear Test Positive")
     public void clearPos() throws DataAccessException {
-        registerResult result = userService.register(user);
+        RegisterResult result = userService.register(user);
         clearService.clear();
         // make sure there are not authTokens or users in database
         Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth(result.authToken()));

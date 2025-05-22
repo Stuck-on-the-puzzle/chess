@@ -3,8 +3,8 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.GameService;
-import service.RequestResult.createRequest;
-import service.RequestResult.createResult;
+import service.requestResult.CreateRequest;
+import service.requestResult.CreateResult;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -20,9 +20,9 @@ public class CreateHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res) {
-        createRequest createRequest = gson.fromJson(req.body(), createRequest.class);
+        CreateRequest createRequest = gson.fromJson(req.body(), CreateRequest.class);
         String authToken = req.headers("authorization");
-        createResult createResult;
+        CreateResult createResult;
         try {
             createResult = gameService.createGame(createRequest, authToken);
             res.status(200);
@@ -34,7 +34,7 @@ public class CreateHandler implements Route {
             else {
                 res.status(400);
             }
-            createResult = new createResult("Error Creating Game");
+            createResult = new CreateResult("Error Creating Game");
         }
         return gson.toJson(createResult);
     }

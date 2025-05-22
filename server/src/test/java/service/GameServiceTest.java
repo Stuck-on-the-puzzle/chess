@@ -3,7 +3,7 @@ package service;
 import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.RequestResult.*;
+import service.requestResult.*;
 
 public class GameServiceTest {
 
@@ -35,10 +35,10 @@ public class GameServiceTest {
     @Test
     @DisplayName("Create Test Positive")
     public void createGamePos() throws DataAccessException {
-        registerResult result = userService.register(user);
+        RegisterResult result = userService.register(user);
         String authToken = result.authToken();
-        createRequest create = new createRequest("GameName");
-        createResult createResult = gameService.createGame(create, authToken);
+        CreateRequest create = new CreateRequest("GameName");
+        CreateResult createResult = gameService.createGame(create, authToken);
         // make sure the game you made can be found in database
         Assertions.assertEquals(createResult.gameID(), gameDAO.getGame(createResult.gameID()).gameID());
     }
@@ -46,7 +46,7 @@ public class GameServiceTest {
     @Test
     @DisplayName("Create Test Negative")
     public void createGameNeg() throws DataAccessException {
-        createRequest create = new createRequest("GameName");
+        CreateRequest create = new CreateRequest("GameName");
         // check that unauthorized token won't allow game creation
         Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(create, "badAuthToken"));
     }
@@ -54,12 +54,12 @@ public class GameServiceTest {
     @Test
     @DisplayName("Join Test Positive")
     public void registerUserPos() throws DataAccessException {
-        registerResult result = userService.register(user);
+        RegisterResult result = userService.register(user);
         String authToken = result.authToken();
-        createRequest create = new createRequest("GameName");
-        createResult createResult = gameService.createGame(create, authToken);
+        CreateRequest create = new CreateRequest("GameName");
+        CreateResult createResult = gameService.createGame(create, authToken);
         int gameID = createResult.gameID();
-        joinRequest joinRequest = new joinRequest("WHITE", gameID);
+        JoinRequest joinRequest = new JoinRequest("WHITE", gameID);
         gameService.joinGame(joinRequest, authToken);
         // make sure the username in the white color matches user username
         Assertions.assertEquals(user.username(), gameDAO.getGame(createResult.gameID()).whiteUsername());
@@ -68,17 +68,17 @@ public class GameServiceTest {
     @Test
     @DisplayName("Join Test Negative")
     public void registerUserNeg() throws DataAccessException {
-        registerResult result = userService.register(user);
+        RegisterResult result = userService.register(user);
         UserData secondUser = new UserData("second", "pass" , "e");
-        registerResult result2 = userService.register(secondUser);
+        RegisterResult result2 = userService.register(secondUser);
         String authToken = result.authToken();
         String authToken2 = result2.authToken();
-        createRequest create = new createRequest("GameName");
-        createResult createResult = gameService.createGame(create, authToken);
+        CreateRequest create = new CreateRequest("GameName");
+        CreateResult createResult = gameService.createGame(create, authToken);
         int gameID = createResult.gameID();
-        joinRequest joinRequest = new joinRequest("WHITE", gameID);
+        JoinRequest joinRequest = new JoinRequest("WHITE", gameID);
         gameService.joinGame(joinRequest, authToken);
-        joinRequest joinRequest2 = new joinRequest("WHITE", gameID);
+        JoinRequest joinRequest2 = new JoinRequest("WHITE", gameID);
         // make sure error throws when player tries to be the same color
         Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(joinRequest2, authToken2));
     }
@@ -86,15 +86,15 @@ public class GameServiceTest {
     @Test
     @DisplayName("List Test Positive")
     public void loginUserPos() throws DataAccessException {
-        registerResult result = userService.register(user);
+        RegisterResult result = userService.register(user);
         String authToken = result.authToken();
-        createRequest create = new createRequest("GameName");
-        createRequest create2 = new createRequest("GameName");
-        createRequest create3 = new createRequest("GameName");
+        CreateRequest create = new CreateRequest("GameName");
+        CreateRequest create2 = new CreateRequest("GameName");
+        CreateRequest create3 = new CreateRequest("GameName");
         gameService.createGame(create, authToken);
         gameService.createGame(create2, authToken);
         gameService.createGame(create3, authToken);
-        listResult listResult = gameService.listGames(authToken);
+        ListResult listResult = gameService.listGames(authToken);
         // make sure the size of the list matches the amount of games added
         Assertions.assertEquals(3, listResult.games().size());
     }

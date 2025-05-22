@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.GameData;
-import service.RequestResult.*;
+import service.requestResult.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,7 +18,7 @@ public class GameService extends BaseClass {
         this.gameDAO = gameDAO;
     }
 
-    public createResult createGame(createRequest create, String authToken) throws DataAccessException {
+    public CreateResult createGame(CreateRequest create, String authToken) throws DataAccessException {
         try {
             isAuthenticated(authToken);
         } catch (DataAccessException e) {
@@ -38,10 +38,10 @@ public class GameService extends BaseClass {
             throw new DataAccessException("Bad Request");
         }
 
-        return new createResult(gameID);
+        return new CreateResult(gameID);
     }
 
-    public joinResult joinGame(joinRequest join, String authToken) throws DataAccessException {
+    public JoinResult joinGame(JoinRequest join, String authToken) throws DataAccessException {
         isAuthenticated(authToken);
         Integer gameID = join.gameID();
         String color = join.playerColor(); // will be WHITE or BLACK
@@ -51,11 +51,11 @@ public class GameService extends BaseClass {
         String username = authDAO.getAuth(authToken).username();
         gameDAO.joinGame(gameID, color, username);
 
-        return new joinResult("Game Joined Successfully");
+        return new JoinResult("Game Joined Successfully");
     }
 
-    public listResult listGames(String authToken) throws DataAccessException{
+    public ListResult listGames(String authToken) throws DataAccessException{
         isAuthenticated(authToken);
-        return new listResult(gameDAO.listGames());
+        return new ListResult(gameDAO.listGames());
     }
 }

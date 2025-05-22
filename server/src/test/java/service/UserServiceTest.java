@@ -4,9 +4,9 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.RequestResult.loginRequest;
-import service.RequestResult.loginResult;
-import service.RequestResult.registerResult;
+import service.requestResult.LoginRequest;
+import service.requestResult.LoginResult;
+import service.requestResult.RegisterResult;
 
 public class UserServiceTest {
 
@@ -33,7 +33,7 @@ public class UserServiceTest {
     @Test
     @DisplayName("Register Test Positive")
     public void registerUserPos() throws DataAccessException {
-        registerResult result = userService.register(user);
+        RegisterResult result = userService.register(user);
         String authToken = result.authToken();
         AuthData authData = new AuthData(authToken, user.username());
         Assertions.assertEquals(authDAO.getAuth(authToken), authData);
@@ -49,9 +49,9 @@ public class UserServiceTest {
     @Test
     @DisplayName("Login Test Positive")
     public void loginUserPos() throws DataAccessException {
-        registerResult result = userService.register(user);
-        loginRequest loginRequest = new loginRequest(user.username(),user.password());
-        loginResult loginResult = userService.login(loginRequest);
+        RegisterResult result = userService.register(user);
+        LoginRequest loginRequest = new LoginRequest(user.username(),user.password());
+        LoginResult loginResult = userService.login(loginRequest);
         AuthData authData = new AuthData(loginResult.authToken(), user.username());
         Assertions.assertEquals(authDAO.getAuth(loginResult.authToken()), authData);
     }
@@ -60,7 +60,7 @@ public class UserServiceTest {
     @DisplayName("Login Test Negative")
     public void loginUserNeg() throws DataAccessException {
         userService.register(user);
-        loginRequest loginRequest = new loginRequest(user.username(),"notRightPassword");
+        LoginRequest loginRequest = new LoginRequest(user.username(),"notRightPassword");
         Assertions.assertThrows(DataAccessException.class, () -> userService.login(loginRequest));
     }
 
@@ -68,8 +68,8 @@ public class UserServiceTest {
     @DisplayName("Logout Test Positive")
     public void logoutUserPos() throws DataAccessException {
         userService.register(user);
-        loginRequest loginRequest = new loginRequest(user.username(),user.password());
-        loginResult loginResult = userService.login(loginRequest);
+        LoginRequest loginRequest = new LoginRequest(user.username(),user.password());
+        LoginResult loginResult = userService.login(loginRequest);
         userService.logout(loginResult.authToken());
         // check that the authToken from login is no longer found
         Assertions.assertThrows(DataAccessException.class, () -> authDAO.getAuth(loginResult.authToken()));

@@ -1,7 +1,7 @@
 package server;
 
 import service.ClearService;
-import service.RequestResult.*;
+import service.requestResult.*;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;
@@ -19,7 +19,7 @@ public class ClearHandler implements Route{
     @Override
     public Object handle(Request req, Response res) {
 
-      clearResult clearMes = clearService.clear();
+      ClearResult clearMes = clearService.clear();
       return gson.toJson(clearMes);
     }
 }

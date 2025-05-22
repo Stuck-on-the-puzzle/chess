@@ -2,8 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import service.RequestResult.loginRequest;
-import service.RequestResult.loginResult;
+import service.requestResult.LoginRequest;
+import service.requestResult.LoginResult;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -20,8 +20,8 @@ public class LoginHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res) {
-        loginRequest loginRequest = gson.fromJson(req.body(), loginRequest.class);
-        loginResult loginResult;
+        LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
+        LoginResult loginResult;
         try {
             res.status(200);
             loginResult = userService.login(loginRequest);
@@ -32,7 +32,7 @@ public class LoginHandler implements Route {
             } else if (e.getMessage().equals("Missing Username or Password")) {
                 res.status(400);
             }
-            loginResult = new loginResult("Error Logging in");
+            loginResult = new LoginResult("Error Logging in");
         }
         return gson.toJson(loginResult);
     }

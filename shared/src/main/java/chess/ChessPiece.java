@@ -70,17 +70,17 @@ public class ChessPiece implements PieceMovesCalculator {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         if (getPieceType() == PieceType.PAWN)
-            return PawnMoves(board, myPosition);
+            return pawnMoves(board, myPosition);
         else if (getPieceType() == PieceType.BISHOP)
-            return BishopMoves(board, myPosition);
+            return bishopMoves(board, myPosition);
         else if (getPieceType() == PieceType.ROOK)
-            return RookMoves(board, myPosition);
+            return rookMoves(board, myPosition);
         else if (getPieceType() == PieceType.KNIGHT)
-            return KnightMoves(board, myPosition);
+            return knightMoves(board, myPosition);
         else if (getPieceType() == PieceType.QUEEN)
-            return QueenMoves(board, myPosition);
+            return queenMoves(board, myPosition);
         else if (getPieceType() == PieceType.KING)
-            return KingMoves(board, myPosition);
+            return kingMoves(board, myPosition);
         throw new RuntimeException("Error with PieceType");
     }
 
@@ -88,7 +88,7 @@ public class ChessPiece implements PieceMovesCalculator {
     ////////////////// PAWN MOVES //////////////////////
     ////////////////////////////////////////////////////
     @Override
-    public Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
         moves.addAll(pawnCalc(board, myPosition, pieceColor));
         return moves;
@@ -98,7 +98,7 @@ public class ChessPiece implements PieceMovesCalculator {
     /////////////////// BISHOP MOVES ////////////////////
     /////////////////////////////////////////////////////
     @Override
-    public Collection<ChessMove> BishopMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
         // calculate moves that go up and to the right
         moves.addAll(repeatMoveCalc(board, myPosition, 1, 1));
@@ -116,7 +116,7 @@ public class ChessPiece implements PieceMovesCalculator {
     /////////////////// ROOK MOVES ////////////////
     ///////////////////////////////////////////////
     @Override
-    public Collection<ChessMove> RookMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
         // calculate moves that go up
         moves.addAll(repeatMoveCalc(board, myPosition, 1, 0));
@@ -134,7 +134,7 @@ public class ChessPiece implements PieceMovesCalculator {
     ///////////////// KNIGHT MOVES /////////////////
     ////////////////////////////////////////////////
     @Override
-    public Collection<ChessMove> KnightMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
         // calculate possible positions
         //up-right
@@ -161,12 +161,12 @@ public class ChessPiece implements PieceMovesCalculator {
     //////////////// QUEEN MOVES ///////////////////////
     ////////////////////////////////////////////////////
     @Override
-    public Collection<ChessMove> QueenMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
-        Collection<ChessMove> bishopmoves = BishopMoves(board, myPosition);
-        Collection<ChessMove> rookmoves = RookMoves(board, myPosition);
-        moves.addAll(bishopmoves);
-        moves.addAll(rookmoves);
+        Collection<ChessMove> bishopMove = bishopMoves(board, myPosition);
+        Collection<ChessMove> rookMove = rookMoves(board, myPosition);
+        moves.addAll(bishopMove);
+        moves.addAll(rookMove);
         return moves;
     }
 
@@ -174,7 +174,7 @@ public class ChessPiece implements PieceMovesCalculator {
     ///////////////// KING MOVES /////////////////
     //////////////////////////////////////////////
     @Override
-    public Collection<ChessMove> KingMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
         // calculate all possible positions
         // move up

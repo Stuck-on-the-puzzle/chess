@@ -3,7 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
-import service.RequestResult.*;
+import service.requestResult.*;
 
 import java.util.UUID;
 
@@ -19,7 +19,7 @@ public class UserService extends BaseClass {
         this.userDAO = userDAO;
     }
 
-    public registerResult register(UserData registerRequest) throws DataAccessException {
+    public RegisterResult register(UserData registerRequest) throws DataAccessException {
         // verify input
         String username = registerRequest.username();
         String password = registerRequest.password();
@@ -35,10 +35,10 @@ public class UserService extends BaseClass {
         authDAO.createAuth(new AuthData(authToken, username));
         // The user should be logged in now
 
-        return new registerResult(username, authToken);
+        return new RegisterResult(username, authToken);
     }
 
-    public loginResult login(loginRequest loginRequest) throws DataAccessException{
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
         String username = loginRequest.username();
         String password = loginRequest.password();
         // check if user exists. If it does, check if password matches
@@ -50,15 +50,15 @@ public class UserService extends BaseClass {
         String authToken = generateToken();
         authDAO.createAuth(new AuthData(authToken, username));
         // user should be logged in now
-        return new loginResult(username, authToken);
+        return new LoginResult(username, authToken);
     }
 
-    public logoutResult logout(String authToken) throws DataAccessException{
+    public LogoutResult logout(String authToken) throws DataAccessException{
         isAuthenticated(authToken);
         authDAO.deleteAuth(authToken);
         // user should be logged out now
 
-        return new logoutResult("Logout Successful");
+        return new LogoutResult("Logout Successful");
     }
 
     public static String generateToken() {

@@ -3,8 +3,8 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.GameService;
-import service.RequestResult.joinRequest;
-import service.RequestResult.joinResult;
+import service.requestResult.JoinRequest;
+import service.requestResult.JoinResult;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -20,9 +20,9 @@ public class JoinHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res)  throws DataAccessException {
-        joinRequest joinRequest = gson.fromJson(req.body(), joinRequest.class);
+        JoinRequest joinRequest = gson.fromJson(req.body(), JoinRequest.class);
         String authToken = req.headers("authorization");
-        joinResult joinResult;
+        JoinResult joinResult;
         try {
             joinResult = gameService.joinGame(joinRequest, authToken);
             res.status(200);
@@ -37,7 +37,7 @@ public class JoinHandler implements Route {
             else {
                 res.status(400);
             }
-            joinResult = new joinResult("Error Joining Game");
+            joinResult = new JoinResult("Error Joining Game");
         }
         return gson.toJson(joinResult);
     }
