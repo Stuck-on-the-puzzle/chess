@@ -3,9 +3,9 @@ import dataaccess.*;
 
 public class BaseClass {
 
-    protected final AuthDAO authDAO;
+    protected final AuthDao authDAO;
 
-    public BaseClass(AuthDAO authDAO) {
+    public BaseClass(AuthDao authDAO) {
         this.authDAO = authDAO;
     }
 

@@ -1,18 +1,18 @@
 package service;
 
 import dataaccess.*;
-import service.requestResult.ClearResult;
+import service.requestresult.ClearResult;
 
 public class ClearService {
 
     // implements the main functions of the program (one the seven functions)
     // this class implements the clear function
 
-    private final UserDAO userDAO;
-    private final AuthDAO authDAO;
-    private final GameDAO gameDAO;
+    private final UserDao userDAO;
+    private final AuthDao authDAO;
+    private final GameDao gameDAO;
 
-    public ClearService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+    public ClearService(UserDao userDAO, AuthDao authDAO, GameDao gameDAO) {
         this.userDAO = userDAO;
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;

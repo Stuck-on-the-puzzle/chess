@@ -3,13 +3,13 @@ package service;
 import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.requestResult.*;
+import service.requestresult.*;
 
 public class GameServiceTest {
 
-    static UserDAO userDAO;
-    static AuthDAO authDAO;
-    static GameDAO gameDAO;
+    static UserDao userDAO;
+    static AuthDao authDAO;
+    static GameDao gameDAO;
     static UserService userService;
     static GameService gameService;
 

@@ -4,7 +4,7 @@ import model.GameData;
 
 import java.util.HashSet;
 
-public class MemoryGameDAO implements GameDAO{
+public class MemoryGameDAO implements GameDao {
     // use to store game data in a list or map for phase 3
 
     private final HashSet<GameData> gameDatadb;
@@ -21,17 +21,6 @@ public class MemoryGameDAO implements GameDAO{
             }
         }
         gameDatadb.add(gameData);
-    }
-
-    @Override
-    public void updateGame(GameData gameData) {
-        int gameID = gameData.gameID();
-        for (GameData game: gameDatadb) {
-            if (game.gameID() == gameID) {
-                gameDatadb.remove(game);
-                gameDatadb.add(gameData);
-            }
-        }
     }
 
     @Override

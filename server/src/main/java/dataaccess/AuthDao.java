@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
-public interface AuthDAO {
+public interface AuthDao {
     // implement interfaces with database that have to do with authentication
 
     void createAuth(AuthData authData); // method to createAuth and put it in database

@@ -5,7 +5,7 @@ import model.AuthData;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MemoryAuthDAO implements AuthDAO {
+public class MemoryAuthDAO implements AuthDao {
     // use to store authentication data in a list or map for phase 3
 
     private final Map<String, AuthData> authDatadb;

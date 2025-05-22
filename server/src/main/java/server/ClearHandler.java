@@ -1,7 +1,7 @@
 package server;
 
 import service.ClearService;
-import service.requestResult.*;
+import service.requestresult.*;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;

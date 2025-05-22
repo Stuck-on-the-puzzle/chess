@@ -3,7 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
-import service.requestResult.*;
+import service.requestresult.*;
 
 import java.util.UUID;
 
@@ -12,9 +12,9 @@ public class UserService extends BaseClass {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
-    private final UserDAO userDAO;
+    private final UserDao userDAO;
 
-    public UserService(UserDAO userDAO, AuthDAO authDAO) {
+    public UserService(UserDao userDAO, AuthDao authDAO) {
         super(authDAO);
         this.userDAO = userDAO;
     }

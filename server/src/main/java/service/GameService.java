@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.GameData;
-import service.requestResult.*;
+import service.requestresult.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -11,9 +11,9 @@ public class GameService extends BaseClass {
     // implements the main functions of the program (three of the seven functions)
     // this class implements the createGame, joinGame, listGames functions
 
-    private final GameDAO gameDAO;
+    private final GameDao gameDAO;
 
-    public GameService(GameDAO gameDAO, AuthDAO authDAO) {
+    public GameService(GameDao gameDAO, AuthDao authDAO) {
         super(authDAO);
         this.gameDAO = gameDAO;
     }

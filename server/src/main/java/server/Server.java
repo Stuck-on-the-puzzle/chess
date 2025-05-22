@@ -8,9 +8,9 @@ import spark.*;
 
 public class Server {
 
-    private static final UserDAO userDAO = new MemoryUserDAO();
-    private static final AuthDAO authDAO = new MemoryAuthDAO();
-    private static final GameDAO gameDAO = new MemoryGameDAO();
+    private static final UserDao userDAO = new MemoryUserDAO();
+    private static final AuthDao authDAO = new MemoryAuthDAO();
+    private static final GameDao gameDAO = new MemoryGameDAO();
 
     ClearHandler clearHandler;
     RegisterHandler registerHandler;

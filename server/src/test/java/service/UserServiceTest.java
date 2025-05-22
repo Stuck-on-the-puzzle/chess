@@ -4,14 +4,14 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.requestResult.LoginRequest;
-import service.requestResult.LoginResult;
-import service.requestResult.RegisterResult;
+import service.requestresult.LoginRequest;
+import service.requestresult.LoginResult;
+import service.requestresult.RegisterResult;
 
 public class UserServiceTest {
 
-    static UserDAO userDAO;
-    static AuthDAO authDAO;
+    static UserDao userDAO;
+    static AuthDao authDAO;
     static UserService userService;
 
     static UserData user;

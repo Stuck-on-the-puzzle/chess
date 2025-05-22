@@ -4,7 +4,7 @@ import model.UserData;
 
 import java.util.HashSet;
 
-public class MemoryUserDAO implements UserDAO{
+public class MemoryUserDAO implements UserDao {
     // use to store user data in a list or map for phase 3
 
     private final HashSet<UserData> userDatadb;
@@ -22,11 +22,6 @@ public class MemoryUserDAO implements UserDAO{
             return;
         }
         throw new DataAccessException("User already exists");
-    }
-
-    @Override
-    public void deleteUser(String username) {
-        userDatadb.removeIf(user -> user.username().equals(username));
     }
 
     @Override

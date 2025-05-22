@@ -3,13 +3,13 @@ package service;
 import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.requestResult.RegisterResult;
+import service.requestresult.RegisterResult;
 
 public class ClearServiceTest {
 
-    static UserDAO userDAO;
-    static AuthDAO authDAO;
-    static GameDAO gameDAO;
+    static UserDao userDAO;
+    static AuthDao authDAO;
+    static GameDao gameDAO;
     static UserService userService;
     static ClearService clearService;
 
