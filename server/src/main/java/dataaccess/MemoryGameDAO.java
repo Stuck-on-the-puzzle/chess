@@ -1,11 +1,8 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.GameData;
-import model.UserData;
 
 import java.util.HashSet;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class MemoryGameDAO implements GameDAO{
     // use to store game data in a list or map for phase 3
@@ -55,27 +52,29 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void joinGame(int gameID, String playerColor, String username) throws DataAccessException{
         for (GameData game : gameDatadb) {
-            if (playerColor.equals("WHITE")) {
-                if (game.whiteUsername() != null) {
-                    throw new DataAccessException("Spot Already Taken");
-                }
-                else {
-                    gameDatadb.remove(game);
-                    GameData joinedGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
-                    gameDatadb.add(joinedGame);
-                }
-            }
-            else {
-                if (game.blackUsername() != null) {
-                    throw new DataAccessException("Spot Already Taken");
-                }
-                else {
-                    gameDatadb.remove(game);
-                    GameData joinedGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
-                    gameDatadb.add(joinedGame);
+            if (game.gameID() == gameID) {
+                if (playerColor.equals("WHITE")) {
+                    if (game.whiteUsername() != null) {
+                        throw new DataAccessException("Spot Already Taken");
+                    } else {
+                        gameDatadb.remove(game);
+                        GameData joinedGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                        gameDatadb.add(joinedGame);
+                        return;
+                    }
+                } else {
+                    if (game.blackUsername() != null) {
+                        throw new DataAccessException("Spot Already Taken");
+                    } else {
+                        gameDatadb.remove(game);
+                        GameData joinedGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                        gameDatadb.add(joinedGame);
+                        return;
+                    }
                 }
             }
         }
+        throw new DataAccessException("No Game matches ID");
     }
 
     public boolean usedGameID(int gameID) {

@@ -4,9 +4,12 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.GameService;
 import service.RequestResult.JoinRequest;
+import service.RequestResult.JoinResult;
 import spark.Request;
 import spark.Response;
 import spark.Route;
+
+import javax.xml.crypto.Data;
 
 public class JoinHandler implements Route {
 
@@ -20,6 +23,24 @@ public class JoinHandler implements Route {
     @Override
     public Object handle(Request req, Response res)  throws DataAccessException {
         JoinRequest joinRequest = gson.fromJson(req.body(), JoinRequest.class);
-        return gson.toJson(gameService.joinGame(joinRequest));
+        String authToken = req.headers("authorization");
+        JoinResult joinResult;
+        try {
+            joinResult = gameService.joinGame(joinRequest, authToken);
+            res.status(200);
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+            if (e.getMessage().equals("Spot Already Taken")) {
+                res.status(403);
+            }
+            else if (e.getMessage().equals("Unauthorized")) {
+                res.status(401);
+            }
+            else {
+                res.status(400);
+            }
+            joinResult = new JoinResult("Error Joining Game");
+        }
+        return gson.toJson(joinResult);
     }
 }

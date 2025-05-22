@@ -41,18 +41,21 @@ public class GameService extends BaseClass {
         return new CreateResult(gameID);
     }
 
-    public JoinResult joinGame(JoinRequest join) throws DataAccessException {
-        int gameID = join.gameID();
+    public JoinResult joinGame(JoinRequest join, String authToken) throws DataAccessException {
+        isAuthenticated(authToken);
+        Integer gameID = join.gameID();
         String color = join.playerColor(); // will be WHITE or BLACK
-        String username = authDAO.getAuth(join.authToken()).username();
-        isAuthenticated(join.authToken());
+        if (color == null || (!color.equals("BLACK") && !color.equals("WHITE")) || gameID == null) {
+            throw new DataAccessException("Error with player color");
+        }
+        String username = authDAO.getAuth(authToken).username();
         gameDAO.joinGame(gameID, color, username);
 
         return new JoinResult("Game Joined Successfully");
     }
 
-    public ListResult listGames(ListRequest list) throws DataAccessException{
-        isAuthenticated(list.authToken());
-        return new ListResult(gameDAO.listGames(), "Listed Games Successfully");
+    public ListResult listGames(String authToken) throws DataAccessException{
+        isAuthenticated(authToken);
+        return new ListResult(gameDAO.listGames());
     }
 }
