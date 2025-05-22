@@ -48,6 +48,7 @@ public class UserService extends BaseClass {
         }
         userDAO.checkCredentials(username, password);
         String authToken = generateToken();
+        authDAO.createAuth(new AuthData(authToken, username));
         // user should be logged in now
         return new LoginResult(username, authToken);
     }

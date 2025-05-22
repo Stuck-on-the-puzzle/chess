@@ -2,35 +2,35 @@ package dataaccess;
 
 import model.AuthData;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MemoryAuthDAO implements AuthDAO {
     // use to store authentication data in a list or map for phase 3
 
-    private final HashSet<AuthData> authDatadb;
+    private final Map<String, AuthData> authDatadb;
 
     public MemoryAuthDAO() {
-        this.authDatadb = new HashSet<>();
+        this.authDatadb = new HashMap<>();
     }
 
     @Override
     public void createAuth(AuthData authData) {
-        authDatadb.add(authData);
+        authDatadb.put(authData.authToken(), authData);
     }
 
     @Override
     public void deleteAuth(String authToken) {
-        authDatadb.removeIf(auth -> auth.authToken().equals(authToken));
+        authDatadb.remove(authToken);
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        for (AuthData auth: authDatadb) {
-            if (auth.authToken().equals(authToken)) {
-                return auth;
-            }
+        AuthData auth = authDatadb.get(authToken);
+        if (auth == null) {
+            throw new DataAccessException("Unauthorized");
         }
-        throw new DataAccessException("Cannot get AuthData");
+        return auth;
     }
 
     @Override

@@ -19,7 +19,7 @@ public class LoginHandler implements Route {
     }
 
     @Override
-    public Object handle(Request req, Response res)  throws DataAccessException {
+    public Object handle(Request req, Response res) {
         LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
         LoginResult loginResult;
         try {

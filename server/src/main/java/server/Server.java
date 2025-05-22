@@ -8,6 +8,10 @@ import spark.*;
 
 public class Server {
 
+    private static final UserDAO userDAO = new MemoryUserDAO();
+    private static final AuthDAO authDAO = new MemoryAuthDAO();
+    private static final GameDAO gameDAO = new MemoryGameDAO();
+
     ClearHandler clearHandler;
     RegisterHandler registerHandler;
     LoginHandler loginHandler;
@@ -20,10 +24,6 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
-
-        UserDAO userDAO = new MemoryUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
 
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
