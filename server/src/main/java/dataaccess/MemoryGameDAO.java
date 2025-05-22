@@ -5,6 +5,7 @@ import model.GameData;
 import model.UserData;
 
 import java.util.HashSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MemoryGameDAO implements GameDAO{
     // use to store game data in a list or map for phase 3
@@ -18,7 +19,7 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
         for (GameData game : gameDatadb) {
-            if (game == gameData) {
+            if (game.equals(gameData)) {
                 throw new DataAccessException("Game Already Exists");
             }
         }
@@ -55,7 +56,7 @@ public class MemoryGameDAO implements GameDAO{
     public void joinGame(int gameID, String playerColor, String username) throws DataAccessException{
         for (GameData game : gameDatadb) {
             if (playerColor.equals("WHITE")) {
-                if (game.whiteUsername() == null) {
+                if (game.whiteUsername() != null) {
                     throw new DataAccessException("Spot Already Taken");
                 }
                 else {
@@ -65,7 +66,7 @@ public class MemoryGameDAO implements GameDAO{
                 }
             }
             else {
-                if (game.blackUsername() == null) {
+                if (game.blackUsername() != null) {
                     throw new DataAccessException("Spot Already Taken");
                 }
                 else {
@@ -75,6 +76,15 @@ public class MemoryGameDAO implements GameDAO{
                 }
             }
         }
+    }
+
+    public boolean usedGameID(int gameID) {
+        for (GameData game : gameDatadb) {
+            if (game.gameID() == gameID) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

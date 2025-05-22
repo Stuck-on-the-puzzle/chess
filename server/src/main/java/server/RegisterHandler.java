@@ -19,7 +19,7 @@ public class RegisterHandler implements Route {
     }
 
     @Override
-    public Object handle(Request req, Response res)  throws DataAccessException {
+    public Object handle(Request req, Response res) {
         UserData userData = gson.fromJson(req.body(), UserData.class);
         RegisterResult registerResult;
         try {
