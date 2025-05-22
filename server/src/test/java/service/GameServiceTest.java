@@ -35,10 +35,10 @@ public class GameServiceTest {
     @Test
     @DisplayName("Create Test Positive")
     public void createGamePos() throws DataAccessException {
-        RegisterResult result = userService.register(user);
+        registerResult result = userService.register(user);
         String authToken = result.authToken();
-        CreateRequest create = new CreateRequest("GameName");
-        CreateResult createResult = gameService.createGame(create, authToken);
+        createRequest create = new createRequest("GameName");
+        createResult createResult = gameService.createGame(create, authToken);
         // make sure the game you made can be found in database
         Assertions.assertEquals(createResult.gameID(), gameDAO.getGame(createResult.gameID()).gameID());
     }
@@ -46,7 +46,7 @@ public class GameServiceTest {
     @Test
     @DisplayName("Create Test Negative")
     public void createGameNeg() throws DataAccessException {
-        CreateRequest create = new CreateRequest("GameName");
+        createRequest create = new createRequest("GameName");
         // check that unauthorized token won't allow game creation
         Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(create, "badAuthToken"));
     }
@@ -54,12 +54,12 @@ public class GameServiceTest {
     @Test
     @DisplayName("Join Test Positive")
     public void registerUserPos() throws DataAccessException {
-        RegisterResult result = userService.register(user);
+        registerResult result = userService.register(user);
         String authToken = result.authToken();
-        CreateRequest create = new CreateRequest("GameName");
-        CreateResult createResult = gameService.createGame(create, authToken);
+        createRequest create = new createRequest("GameName");
+        createResult createResult = gameService.createGame(create, authToken);
         int gameID = createResult.gameID();
-        JoinRequest joinRequest = new JoinRequest("WHITE", gameID);
+        joinRequest joinRequest = new joinRequest("WHITE", gameID);
         gameService.joinGame(joinRequest, authToken);
         // make sure the username in the white color matches user username
         Assertions.assertEquals(user.username(), gameDAO.getGame(createResult.gameID()).whiteUsername());
@@ -68,17 +68,17 @@ public class GameServiceTest {
     @Test
     @DisplayName("Join Test Negative")
     public void registerUserNeg() throws DataAccessException {
-        RegisterResult result = userService.register(user);
+        registerResult result = userService.register(user);
         UserData secondUser = new UserData("second", "pass" , "e");
-        RegisterResult result2 = userService.register(secondUser);
+        registerResult result2 = userService.register(secondUser);
         String authToken = result.authToken();
         String authToken2 = result2.authToken();
-        CreateRequest create = new CreateRequest("GameName");
-        CreateResult createResult = gameService.createGame(create, authToken);
+        createRequest create = new createRequest("GameName");
+        createResult createResult = gameService.createGame(create, authToken);
         int gameID = createResult.gameID();
-        JoinRequest joinRequest = new JoinRequest("WHITE", gameID);
+        joinRequest joinRequest = new joinRequest("WHITE", gameID);
         gameService.joinGame(joinRequest, authToken);
-        JoinRequest joinRequest2 = new JoinRequest("WHITE", gameID);
+        joinRequest joinRequest2 = new joinRequest("WHITE", gameID);
         // make sure error throws when player tries to be the same color
         Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(joinRequest2, authToken2));
     }
@@ -86,15 +86,15 @@ public class GameServiceTest {
     @Test
     @DisplayName("List Test Positive")
     public void loginUserPos() throws DataAccessException {
-        RegisterResult result = userService.register(user);
+        registerResult result = userService.register(user);
         String authToken = result.authToken();
-        CreateRequest create = new CreateRequest("GameName");
-        CreateRequest create2 = new CreateRequest("GameName");
-        CreateRequest create3 = new CreateRequest("GameName");
+        createRequest create = new createRequest("GameName");
+        createRequest create2 = new createRequest("GameName");
+        createRequest create3 = new createRequest("GameName");
         gameService.createGame(create, authToken);
         gameService.createGame(create2, authToken);
         gameService.createGame(create3, authToken);
-        ListResult listResult = gameService.listGames(authToken);
+        listResult listResult = gameService.listGames(authToken);
         // make sure the size of the list matches the amount of games added
         Assertions.assertEquals(3, listResult.games().size());
     }

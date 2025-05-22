@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.*;
-import service.RequestResult.ClearResult;
+import service.RequestResult.clearResult;
 
 public class ClearService {
 
@@ -18,11 +18,11 @@ public class ClearService {
         this.gameDAO = gameDAO;
     }
 
-    public ClearResult clear() {
+    public clearResult clear() {
         userDAO.clear();
         authDAO.clear();
         gameDAO.clear();
 
-        return new ClearResult("Clear Successful");
+        return new clearResult("Clear Successful");
     }
 }

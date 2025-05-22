@@ -1,6 +1,5 @@
 package server;
 
-import dataaccess.DataAccessException;
 import service.ClearService;
 import service.RequestResult.*;
 import spark.Request;
@@ -20,7 +19,7 @@ public class ClearHandler implements Route{
     @Override
     public Object handle(Request req, Response res) {
 
-      ClearResult clearMes = clearService.clear();
+      clearResult clearMes = clearService.clear();
       return gson.toJson(clearMes);
     }
 }
