@@ -83,10 +83,7 @@ public class ChessPiece implements PieceMovesCalculator {
             return kingMoves(board, myPosition);
         throw new RuntimeException("Error with PieceType");
     }
-
-    ////////////////////////////////////////////////////
-    ////////////////// PAWN MOVES //////////////////////
-    ////////////////////////////////////////////////////
+    
     @Override
     public Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
@@ -94,9 +91,6 @@ public class ChessPiece implements PieceMovesCalculator {
         return moves;
     }
 
-    /////////////////////////////////////////////////////
-    /////////////////// BISHOP MOVES ////////////////////
-    /////////////////////////////////////////////////////
     @Override
     public Collection<ChessMove> bishopMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
@@ -112,9 +106,6 @@ public class ChessPiece implements PieceMovesCalculator {
         return moves;
     }
 
-    ///////////////////////////////////////////////
-    /////////////////// ROOK MOVES ////////////////
-    ///////////////////////////////////////////////
     @Override
     public Collection<ChessMove> rookMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
@@ -130,9 +121,6 @@ public class ChessPiece implements PieceMovesCalculator {
         return moves;
     }
 
-    ////////////////////////////////////////////////
-    ///////////////// KNIGHT MOVES /////////////////
-    ////////////////////////////////////////////////
     @Override
     public Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
@@ -157,9 +145,6 @@ public class ChessPiece implements PieceMovesCalculator {
         return moves;
     }
 
-    ////////////////////////////////////////////////////
-    //////////////// QUEEN MOVES ///////////////////////
-    ////////////////////////////////////////////////////
     @Override
     public Collection<ChessMove> queenMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
@@ -170,9 +155,6 @@ public class ChessPiece implements PieceMovesCalculator {
         return moves;
     }
 
-    //////////////////////////////////////////////
-    ///////////////// KING MOVES /////////////////
-    //////////////////////////////////////////////
     @Override
     public Collection<ChessMove> kingMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> moves = new ArrayList<>(); // initialize move ArrayList
