@@ -1,6 +1,5 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -19,9 +18,9 @@ public class MySQLUserDao  implements UserDao {
     public void createUser(UserData userData) throws DataAccessException {
         var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         try {
-            executeUpdate(statement, userData.username(), userData.password(), userData.email());
+            executeUpdate(statement, userData.username(), hashUserPassword(userData.password()), userData.email());
         } catch (DataAccessException e) {
-            throw new DataAccessException("Failed to Create User. Name probably already exists.")
+            throw new DataAccessException("Failed to Create User. Name probably already exists.");
         }
     }
 
@@ -44,16 +43,19 @@ public class MySQLUserDao  implements UserDao {
 
     @Override
     public void checkCredentials(String username, String password) throws DataAccessException {
-        try {
-            getUser(username);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Unauthorized");
+        if (!verifyUser(username, password)) {
+            throw new DataAccessException("Wrong Username or Password");
         }
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws DataAccessException {
+        var statement = "DELETE FROM user";
+        try {
+            executeUpdate(statement);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error clearing data");
+        }
     }
 
     private final String[] createStatements = {
@@ -104,18 +106,30 @@ public class MySQLUserDao  implements UserDao {
         }
     }
 
-    // Password Stuff;\:
-//    void storeUserPassword(String username, String clearTextPassword) {
-//        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
-//
-//        // write the hashed password in database along with the user's other information
-//        writeHashedPasswordToDatabase(username, hashedPassword);
-//    }
-//
-//    boolean verifyUser(String username, String providedClearTextPassword) {
-//        // read the previously hashed password from the database
-//        var hashedPassword = readHashedPasswordFromDatabase(username);
-//
-//        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
-//    }
+    String hashUserPassword(String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+    }
+
+    boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+        var hashedPassword = readHashedPasswordFromDatabase(username);
+        return hashedPassword != null && BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+    }
+
+    String readHashedPasswordFromDatabase(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT password FROM user WHERE username = ?")) {
+                statement.setString(1, username);
+                try (var results = statement.executeQuery()) {
+                    if (results.next()) {
+                        return results.getString("password");
+                    }
+                    else {
+                        return null;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error getting password.");
+        }
+    }
 }
