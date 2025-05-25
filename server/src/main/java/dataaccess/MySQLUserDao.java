@@ -38,13 +38,17 @@ public class MySQLUserDao  implements UserDao {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("User not found")
+            throw new DataAccessException("User not found");
         }
     }
 
     @Override
     public void checkCredentials(String username, String password) throws DataAccessException {
-
+        try {
+            getUser(username);
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Unauthorized");
+        }
     }
 
     @Override
