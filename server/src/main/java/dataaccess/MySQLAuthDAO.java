@@ -1,8 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
@@ -26,8 +24,15 @@ public class MySQLAuthDAO implements AuthDao{
     }
 
     @Override
-    public void deleteAuth(String authToken) {
-
+    public void deleteAuth(String authToken) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("DELETE FROM auth WHERE authToken=?")) {
+                statement.setString(1, authToken);
+                statement.executeQuery();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error deleting authToken");
+        }
     }
 
     @Override
