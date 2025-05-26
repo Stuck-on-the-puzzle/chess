@@ -16,8 +16,13 @@ public class MySQLAuthDAO implements AuthDao{
     }
 
     @Override
-    public void createAuth(AuthData authData) {
-
+    public void createAuth(AuthData authData) throws DataAccessException{
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        try {
+            executeUpdate(statement, authData.authToken(), authData.username());
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Failed to authenticate user");
+        }
     }
 
     @Override
@@ -96,9 +101,5 @@ public class MySQLAuthDAO implements AuthDao{
         } catch (SQLException e) {
             throw new DataAccessException("Unable to update Database");
         }
-    }
-
-    String hashUserPassword(String clearTextPassword) {
-        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
     }
 }
