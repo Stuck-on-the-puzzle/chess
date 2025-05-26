@@ -9,5 +9,5 @@ public interface AuthDao {
     void deleteAuth(String authToken); // method to delete authToken from database
     AuthData getAuth(String authToken) throws DataAccessException; // method to get authToken from the database
     // if there is an issue getting the AuthData from the database, and exception is thrown.
-    void clear();
+    void clear() throws DataAccessException;
 }
