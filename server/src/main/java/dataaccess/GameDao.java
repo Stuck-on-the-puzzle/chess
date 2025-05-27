@@ -15,5 +15,5 @@ public interface GameDao {
     // if there is an issue getting the GameData from the database, and exception is thrown.
     void joinGame(int gameID, String playerColor, String username) throws DataAccessException;
     boolean usedGameID(int gameID);
-    void clear();
+    void clear() throws DataAccessException;
 }

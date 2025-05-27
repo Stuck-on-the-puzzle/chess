@@ -8,9 +8,9 @@ import java.sql.SQLException;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
 
-public class MySQLUserDao  implements UserDao {
+public class MySQLUserDAO implements UserDao {
 
-    public MySQLUserDao() throws DataAccessException {
+    public MySQLUserDAO() throws DataAccessException {
         configureDatabase();
     }
 
