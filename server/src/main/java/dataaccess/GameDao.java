@@ -11,7 +11,7 @@ public interface GameDao {
     void createGame(GameData gameData) throws DataAccessException; // adds GameData to the database
     GameData getGame(int gameID) throws DataAccessException; // gets GameData from the database
     // if there is an issue getting the GameData from the database, and exception is thrown.
-    HashSet<GameData> listGames() throws DataAccessException; // gets a hash set of GameData from the database
+    HashSet<GameData> listGames(); // gets a hash set of GameData from the database
     // if there is an issue getting the GameData from the database, and exception is thrown.
     void joinGame(int gameID, String playerColor, String username) throws DataAccessException;
     boolean usedGameID(int gameID);
