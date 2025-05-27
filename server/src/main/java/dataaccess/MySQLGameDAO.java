@@ -34,7 +34,9 @@ public class MySQLGameDAO implements GameDao {
             try (var statement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, chessGame FROM game WHERE gameID=?")){
                 statement.setInt(1, gameID);
                 try (var results = statement.executeQuery()) {
-                    results.next();
+                    if (!results.next()) {
+                        throw new DataAccessException("Game with given gameID not found");
+                    }
                     var whiteUsername = results.getString("whiteUsername");
                     var blackUsername = results.getString("blackUsername");
                     var gameName = results.getString("gameName");
@@ -75,47 +77,32 @@ public class MySQLGameDAO implements GameDao {
 
     @Override
     public void joinGame(int gameID, String playerColor, String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT gameID, whiteUsername, blackUsername, gameName, chessGame FROM game WHERE gameID=?")){
-                if (playerColor.equals("WHITE")) {
-                    if (statement.executeQuery().next()) {
-                        throw new DataAccessException("Color already chosen");
-                    }
-                    else {
-                        GameData game = getGame(gameID);
-                        try (var s = conn.prepareStatement("DELETE FROM game WHERE gameID=?")) {
-                            s.setInt(1, gameID);
-                            s.executeQuery();
-                            GameData newGame = new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game());
-                            createGame(newGame);
-                        } catch (SQLException e) {
-                            throw new DataAccessException("GameDoes Not Exist");
-                        }
-                    }
-                }
-
-                else {
-                    if (statement.executeQuery().next()) {
-                        throw new DataAccessException("Color already chosen");
-                    }
-                    else {
-                        GameData game = getGame(gameID);
-                        try (var s = conn.prepareStatement("DELETE FROM game WHERE gameID=?")) {
-                            s.setInt(1, gameID);
-                            s.executeQuery();
-                            GameData newGame = new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game());
-                            createGame(newGame);
-                        } catch (SQLException e) {
-                            throw new DataAccessException("GameDoes Not Exist");
-                        }
-                    }
-                }
+        GameData game = getGame(gameID);
+        if (playerColor.equals("WHITE")) {
+            if (game.whiteUsername() != null) {
+                throw new DataAccessException("Color already chosen");
             }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error Getting Game");
+            updatePlayerColor(gameID, "whiteUsername", username);
+        } else {
+            if (game.blackUsername() != null) {
+                throw new DataAccessException("Color already chosen");
+            }
+            updatePlayerColor(gameID, "blackUsername", username);
         }
     }
 
+    private void updatePlayerColor(int gameID, String playerColor, String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("UPDATE game SET " + playerColor + "=? WHERE gameID=?")){
+                statement.setString(1,username);
+                statement.setInt(2, gameID);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error Joining Game");
+        }
+    }
+    
     @Override
     public boolean usedGameID(int gameID) {
         try (var conn = DatabaseManager.getConnection()) {

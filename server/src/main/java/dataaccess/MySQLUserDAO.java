@@ -30,7 +30,9 @@ public class MySQLUserDAO implements UserDao {
             try (var statement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")){
                 statement.setString(1, username);
                 try (var results = statement.executeQuery()) {
-                    results.next();
+                    if (!results.next()) {
+                        throw new DataAccessException("User does not exist");
+                    }
                     var password = results.getString("password");
                     var email = results.getString("email");
                     return new UserData(username, password, email);
