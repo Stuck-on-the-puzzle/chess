@@ -147,7 +147,7 @@ public class MySQLGameDAO implements GameDao {
             `whiteUsername` varchar(255),
             `blackUsername` varchar(255),
             `gameName`  varchar(255),
-            `chessGame` TEXT
+            `chessGame` TEXT,
             PRIMARY KEY (`gameID`)
             )
             """
