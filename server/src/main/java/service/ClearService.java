@@ -19,10 +19,13 @@ public class ClearService {
     }
 
     public ClearResult clear() {
-        userDAO.clear();
-        authDAO.clear();
-        gameDAO.clear();
-
+        try {
+            userDAO.clear();
+            authDAO.clear();
+            gameDAO.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         return new ClearResult("Clear Successful");
     }
 }

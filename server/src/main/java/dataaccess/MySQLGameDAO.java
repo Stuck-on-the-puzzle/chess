@@ -144,7 +144,7 @@ public class MySQLGameDAO implements GameDao {
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS game(
-            `gameID` varchar(255) NOT NULL,
+            `gameID` INT NOT NULL,
             `whiteUsername` varchar(255),
             `blackUsername` varchar(255),
             `gameName`  varchar(255),

@@ -25,8 +25,12 @@ public class UserServiceTest {
 
     @BeforeEach
     public void setup() {
-        userDAO.clear();
-        authDAO.clear();
+        try {
+            userDAO.clear();
+            authDAO.clear();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         user = new UserData("username", "password", "email@email.com");
     }
 

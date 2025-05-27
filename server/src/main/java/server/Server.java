@@ -8,9 +8,19 @@ import spark.*;
 
 public class Server {
 
-    private static final UserDao userDAO = new MemoryUserDAO();
-    private static final AuthDao authDAO = new MemoryAuthDAO();
-    private static final GameDao gameDAO = new MemoryGameDAO();
+    private static final UserDao userDAO;
+    private static final AuthDao authDAO;
+    private static final GameDao gameDAO;
+
+    static {
+        try {
+            userDAO = new MySQLUserDAO();
+            gameDAO = new MySQLGameDAO();
+            authDAO = new MySQLAuthDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     ClearHandler clearHandler;
     RegisterHandler registerHandler;
