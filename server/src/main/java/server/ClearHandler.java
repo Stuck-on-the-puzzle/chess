@@ -20,6 +20,9 @@ public class ClearHandler implements Route{
     public Object handle(Request req, Response res) {
 
       ClearResult clearMes = clearService.clear();
-      return gson.toJson(clearMes);
+      if (clearMes.message().equals("Error clearing data")) {
+          res.status(500);
+      }
+          return gson.toJson(clearMes);
     }
 }

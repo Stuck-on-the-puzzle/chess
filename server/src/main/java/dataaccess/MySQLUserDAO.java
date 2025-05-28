@@ -16,11 +16,15 @@ public class MySQLUserDAO implements UserDao {
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
-        try {
-            executeUpdate(statement, userData.username(), hashUserPassword(userData.password()), userData.email());
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Failed to Create User. Name probably already exists.");
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("INSERT INTO user (username, password, email) VALUES (?, ?, ?)")){
+                statement.setString(1, userData.username());
+                statement.setString(2, hashUserPassword(userData.password()));
+                statement.setString(3, userData.email());
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Username already taken");
         }
     }
 
@@ -52,11 +56,12 @@ public class MySQLUserDAO implements UserDao {
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "DELETE FROM user";
-        try {
-            executeUpdate(statement);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error clearing data");
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("DELETE from user")) {
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error clearing user data");
         }
     }
 
@@ -81,30 +86,6 @@ public class MySQLUserDAO implements UserDao {
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to Configure Database");
-        }
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof UserData u) ps.setString(i + 1, u.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to update Database");
         }
     }
 

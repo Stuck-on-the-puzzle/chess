@@ -31,6 +31,9 @@ public class CreateHandler implements Route {
             if (e.getMessage().equals("Unauthorized")) {
                 res.status(401);
             }
+            else if (e.getMessage().equals("Error connecting to database")) {
+                res.status(500);
+            }
             else {
                 res.status(400);
             }

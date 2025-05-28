@@ -24,7 +24,7 @@ public class ClearService {
             authDAO.clear();
             gameDAO.clear();
         } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            return new ClearResult("Error clearing data");
         }
         return new ClearResult("Clear Successful");
     }

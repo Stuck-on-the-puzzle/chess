@@ -7,9 +7,6 @@ import com.google.gson.Gson;
 import java.sql.SQLException;
 import java.util.HashSet;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class MySQLGameDAO implements GameDao {
 
     private final Gson serializer = new Gson();
@@ -19,12 +16,18 @@ public class MySQLGameDAO implements GameDao {
     }
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
-        var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
-        try {
-            var chessGameJson = serializer.toJson(gameData.game());
-            executeUpdate(statement, gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), chessGameJson);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Failed to Create Game");
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?, ?)")){
+                var chessGameJson = serializer.toJson(gameData.game());
+                statement.setInt(1, gameData.gameID());
+                statement.setString(2, gameData.whiteUsername());
+                statement.setString(3, gameData.blackUsername());
+                statement.setString(4, gameData.gameName());
+                statement.setString(5, chessGameJson);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error connecting to database");
         }
     }
 
@@ -91,6 +94,7 @@ public class MySQLGameDAO implements GameDao {
         }
     }
 
+    // helper method to join a game (avoid duplicate code)
     private void updatePlayerColor(int gameID, String playerColor, String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("UPDATE game SET " + playerColor + "=? WHERE gameID=?")){
@@ -102,7 +106,7 @@ public class MySQLGameDAO implements GameDao {
             throw new DataAccessException("Error Joining Game");
         }
     }
-    
+
     @Override
     public boolean usedGameID(int gameID) {
         try (var conn = DatabaseManager.getConnection()) {
@@ -119,11 +123,12 @@ public class MySQLGameDAO implements GameDao {
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "DELETE FROM game";
-        try {
-            executeUpdate(statement);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error clearing data");
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("DELETE from game")) {
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error clearing game data");
         }
     }
 
@@ -150,30 +155,6 @@ public class MySQLGameDAO implements GameDao {
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to Configure Database");
-        }
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof GameData u) ps.setString(i + 1, u.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to update Database");
         }
     }
 }
