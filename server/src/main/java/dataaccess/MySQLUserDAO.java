@@ -5,13 +5,20 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
-public class MySQLUserDAO implements UserDao {
+public class MySQLUserDAO extends BaseDAO implements UserDao {
 
     public MySQLUserDAO() throws DataAccessException {
-        configureDatabase();
+
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS user(
+            `username` varchar(255) NOT NULL,
+            `password` varchar(255) NOT NULL,
+            `email` varchar(255) NOT NULL,
+            PRIMARY KEY (`username`)
+            )
+            """
+        };configureDatabase(createStatements);
     }
 
     @Override
@@ -67,30 +74,6 @@ public class MySQLUserDAO implements UserDao {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error clearing user data");
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS user(
-            `username` varchar(255) NOT NULL,
-            `password` varchar(255) NOT NULL,
-            `email` varchar(255) NOT NULL,
-            PRIMARY KEY (`username`)
-            )
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to Configure Database");
         }
     }
 

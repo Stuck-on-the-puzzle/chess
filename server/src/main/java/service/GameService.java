@@ -6,16 +6,17 @@ import service.requestresult.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GameService extends BaseClass {
+public class GameService {
 
     // implements the main functions of the program (three of the seven functions)
     // this class implements the createGame, joinGame, listGames functions
 
     private final GameDao gameDAO;
+    private final AuthDao authDAO;
 
     public GameService(GameDao gameDAO, AuthDao authDAO) {
-        super(authDAO);
         this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
     }
 
     public CreateResult createGame(CreateRequest create, String authToken) throws DataAccessException {

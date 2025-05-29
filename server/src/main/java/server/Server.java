@@ -11,15 +11,15 @@ import spark.*;
 
 public class Server {
 
-    private static final UserDao userDAO;
-    private static final AuthDao authDAO;
-    private static final GameDao gameDAO;
+    private static final UserDao USER_DAO;
+    private static final AuthDao AUTH_DAO;
+    private static final GameDao GAME_DAO;
 
     static {
         try {
-            userDAO = new MySQLUserDAO();
-            gameDAO = new MySQLGameDAO();
-            authDAO = new MySQLAuthDAO();
+            USER_DAO = new MySQLUserDAO();
+            GAME_DAO = new MySQLGameDAO();
+            AUTH_DAO = new MySQLAuthDAO();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -38,9 +38,9 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        UserService userService = new UserService(userDAO, authDAO);
-        GameService gameService = new GameService(gameDAO, authDAO);
-        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+        UserService userService = new UserService(USER_DAO, AUTH_DAO);
+        GameService gameService = new GameService(GAME_DAO, AUTH_DAO);
+        ClearService clearService = new ClearService(USER_DAO, AUTH_DAO, GAME_DAO);
 
         registerHandler = new RegisterHandler(userService);
         loginHandler = new LoginHandler(userService);

@@ -7,16 +7,17 @@ import service.requestresult.*;
 
 import java.util.UUID;
 
-public class UserService extends BaseClass {
+public class UserService {
 
     // implements the main functions of the program (three of the seven functions)
     // this class implements the register, login, logout functions
 
     private final UserDao userDAO;
+    private final AuthDao authDAO;
 
     public UserService(UserDao userDAO, AuthDao authDAO) {
-        super(authDAO);
         this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
     public RegisterResult register(UserData registerRequest) throws DataAccessException {

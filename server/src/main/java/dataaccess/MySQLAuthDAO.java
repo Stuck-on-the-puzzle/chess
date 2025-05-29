@@ -4,10 +4,19 @@ import model.AuthData;
 
 import java.sql.SQLException;
 
-public class MySQLAuthDAO implements AuthDao {
+public class MySQLAuthDAO extends BaseDAO implements AuthDao {
 
     public MySQLAuthDAO() throws DataAccessException {
-        configureDatabase();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS auth(
+            `authToken` varchar(255) NOT NULL,
+            `username` varchar(255) NOT NULL,
+            PRIMARY KEY (`authToken`)
+            )
+            """
+        };
+        configureDatabase(createStatements);
     }
 
     @Override
@@ -67,29 +76,6 @@ public class MySQLAuthDAO implements AuthDao {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error clearing auth data");
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS auth(
-            `authToken` varchar(255) NOT NULL,
-            `username` varchar(255) NOT NULL,
-            PRIMARY KEY (`authToken`)
-            )
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to Configure Database");
         }
     }
 }

@@ -69,7 +69,7 @@ public class MySQLGameDAOTests {
 
     @Test
     @DisplayName("Join Test Positive")
-    public void JoinPos() throws DataAccessException {
+    public void joinPos() throws DataAccessException {
         gameDAO.createGame(game);
         gameDAO.joinGame(1, "WHITE", "whiteUsername");
         // make sure the size of the list matches the amount of games added
@@ -78,7 +78,7 @@ public class MySQLGameDAOTests {
 
     @Test
     @DisplayName("Join Test Negative")
-    public void JoinNeg() throws DataAccessException {
+    public void joinNeg() throws DataAccessException {
         gameDAO.createGame(game);
         // make sure trying to take color that is already taken throws an error
         Assertions.assertThrows(DataAccessException.class, () -> gameDAO.joinGame(1, "BLACK", "username"));

@@ -7,17 +7,30 @@ import com.google.gson.Gson;
 import java.sql.SQLException;
 import java.util.HashSet;
 
-public class MySQLGameDAO implements GameDao {
+public class MySQLGameDAO extends BaseDAO implements GameDao {
 
     private final Gson serializer = new Gson();
 
     public MySQLGameDAO() throws DataAccessException {
-        configureDatabase();
+        String[] createStatements = {
+                """
+            CREATE TABLE IF NOT EXISTS game(
+            `gameID` INT NOT NULL,
+            `whiteUsername` varchar(255),
+            `blackUsername` varchar(255),
+            `gameName`  varchar(255),
+            `chessGame` TEXT,
+            PRIMARY KEY (`gameID`)
+            )
+            """
+        };
+        configureDatabase(createStatements);
     }
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?, ?)")){
+            var s = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
+            try (var statement = conn.prepareStatement(s)){
                 var chessGameJson = serializer.toJson(gameData.game());
                 statement.setInt(1, gameData.gameID());
                 statement.setString(2, gameData.whiteUsername());
@@ -129,32 +142,6 @@ public class MySQLGameDAO implements GameDao {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error clearing game data");
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS game(
-            `gameID` INT NOT NULL,
-            `whiteUsername` varchar(255),
-            `blackUsername` varchar(255),
-            `gameName`  varchar(255),
-            `chessGame` TEXT,
-            PRIMARY KEY (`gameID`)
-            )
-            """
-    };
-
-    private void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to Configure Database");
         }
     }
 }
