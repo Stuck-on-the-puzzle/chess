@@ -3,7 +3,6 @@ package dataaccess;
 import model.AuthData;
 
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class MySQLAuthDAO implements AuthDao {
 
@@ -12,8 +11,7 @@ public class MySQLAuthDAO implements AuthDao {
     }
 
     @Override
-    public String createAuth(String username) throws DataAccessException{
-        String authToken = UUID.randomUUID().toString();
+    public void createAuth(String authToken, String username) throws DataAccessException{
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)")){
                 statement.setString(1, authToken);
@@ -28,7 +26,6 @@ public class MySQLAuthDAO implements AuthDao {
                 throw new DataAccessException("Database Error");
             }
         }
-        return authToken;
     }
 
     @Override

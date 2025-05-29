@@ -27,7 +27,8 @@ public class UserService extends BaseClass {
             throw new DataAccessException("Bad Request");
         }
         userDAO.createUser(registerRequest);
-        String authToken = authDAO.createAuth(username);
+        String authToken = UUID.randomUUID().toString();
+        authDAO.createAuth(authToken, username);
         // The user should be logged in now
         return new RegisterResult(username, authToken);
     }
@@ -41,7 +42,8 @@ public class UserService extends BaseClass {
             throw new DataAccessException("Bad Request");
         }
         userDAO.checkCredentials(username, password);
-        String authToken = authDAO.createAuth(username);
+        String authToken = UUID.randomUUID().toString();
+        authDAO.createAuth(authToken, username);
         // user should be logged in now
         return new LoginResult(username, authToken);
     }

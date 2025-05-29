@@ -2,7 +2,6 @@ package dataaccess;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import com.google.gson.Gson;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;

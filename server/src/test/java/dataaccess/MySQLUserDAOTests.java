@@ -1,35 +1,27 @@
 package dataaccess;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.GameService;
 import service.UserService;
 
 public class MySQLUserDAOTests {
 
     static UserDao userDAO;
     static AuthDao authDAO;
-    static GameDao gameDAO;
     static UserService userService;
-    static GameService gameService;
 
     static UserData user;
-    static GameData game;
 
     @BeforeAll
     public static void init() {
         try {
             userDAO = new MySQLUserDAO();
-            gameDAO = new MySQLGameDAO();
             authDAO = new MySQLAuthDAO();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
         userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
+
     }
 
     @BeforeEach
@@ -37,17 +29,11 @@ public class MySQLUserDAOTests {
         try {
             userDAO.clear();
             authDAO.clear();
-            gameDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
         DatabaseManager.createDatabase();
-        ChessBoard board = new ChessBoard();
-        ChessGame chessGame = new ChessGame();
-        board.resetBoard();
-        chessGame.setBoard(board);
 
-        game = new GameData(1, null, "blackUser", "defaultGame", chessGame);
         user = new UserData("username", "password", "email@email.com");
     }
 
