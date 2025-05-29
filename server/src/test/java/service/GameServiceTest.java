@@ -5,15 +5,11 @@ import model.UserData;
 import org.junit.jupiter.api.*;
 import service.requestresult.*;
 
-public class GameServiceTest {
+public class GameServiceTest extends GameClearSetup{
 
-    static UserDao userDAO;
-    static AuthDao authDAO;
-    static GameDao gameDAO;
     static UserService userService;
     static GameService gameService;
 
-    static UserData user;
 
     @BeforeAll
     public static void init() {
@@ -22,18 +18,6 @@ public class GameServiceTest {
         gameDAO = new MemoryGameDAO();
         userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
-    }
-
-    @BeforeEach
-    public void setup() {
-        try {
-            userDAO.clear();
-            authDAO.clear();
-            gameDAO.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-        user = new UserData("username", "password", "email@email.com");
     }
 
     @Test

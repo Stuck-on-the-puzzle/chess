@@ -1,19 +1,14 @@
 package service;
 
 import dataaccess.*;
-import model.UserData;
 import org.junit.jupiter.api.*;
 import service.requestresult.RegisterResult;
 
-public class ClearServiceTest {
+public class ClearServiceTest extends GameClearSetup {
 
-    static UserDao userDAO;
-    static AuthDao authDAO;
-    static GameDao gameDAO;
     static UserService userService;
     static ClearService clearService;
 
-    static UserData user;
 
     @BeforeAll
     public static void init() {
@@ -22,18 +17,6 @@ public class ClearServiceTest {
         gameDAO = new MemoryGameDAO();
         userService = new UserService(userDAO, authDAO);
         clearService = new ClearService(userDAO, authDAO, gameDAO);
-    }
-
-    @BeforeEach
-    public void setup() {
-        try {
-            userDAO.clear();
-            authDAO.clear();
-            gameDAO.clear();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-        user = new UserData("username", "password", "email@email.com");
     }
 
     @Test
