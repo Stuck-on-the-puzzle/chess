@@ -20,19 +20,6 @@ public class MySQLAuthDAO extends BaseDAO implements AuthDao {
     }
 
     @Override
-    public void createAuth(String authToken, String username) throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)")){
-                statement.setString(1, authToken);
-                statement.setString(2, username);
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-                throw new DataAccessException("Database Error");
-        }
-    }
-
-    @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("DELETE FROM auth WHERE authToken=?")) {
@@ -57,6 +44,19 @@ public class MySQLAuthDAO extends BaseDAO implements AuthDao {
                     var username = results.getString("username");
                     return new AuthData(authToken, username);
                 }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Database Error");
+        }
+    }
+
+    @Override
+    public void createAuth(String authToken, String username) throws DataAccessException{
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)")){
+                statement.setString(1, authToken);
+                statement.setString(2, username);
+                statement.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DataAccessException("Database Error");
