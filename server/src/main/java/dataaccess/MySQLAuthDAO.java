@@ -28,12 +28,7 @@ public class MySQLAuthDAO extends BaseDAO implements AuthDao {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            if (e.getErrorCode() == 1062) {
-                throw new DataAccessException("Auth already taken");
-            }
-            else {
                 throw new DataAccessException("Database Error");
-            }
         }
     }
 

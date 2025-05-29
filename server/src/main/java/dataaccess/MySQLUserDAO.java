@@ -18,7 +18,8 @@ public class MySQLUserDAO extends BaseDAO implements UserDao {
             PRIMARY KEY (`username`)
             )
             """
-        };configureDatabase(createStatements);
+        };
+        configureDatabase(createStatements);
     }
 
     @Override
