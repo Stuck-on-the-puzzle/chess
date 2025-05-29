@@ -32,6 +32,9 @@ public class LoginHandler implements Route {
             } else if (e.getMessage().equals("Missing Username or Password")) {
                 res.status(400);
             }
+            else {
+                res.status(500);
+            }
             loginResult = new LoginResult("Error Logging in");
         }
         return gson.toJson(loginResult);

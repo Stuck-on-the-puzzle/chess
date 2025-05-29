@@ -19,11 +19,7 @@ public class GameService extends BaseClass {
     }
 
     public CreateResult createGame(CreateRequest create, String authToken) throws DataAccessException {
-        try {
-            isAuthenticated(authToken);
-        } catch (DataAccessException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+        authDAO.getAuth(authToken);
         if (create.gameName() == null) {
             throw new DataAccessException("Bad Request");
         }
@@ -42,7 +38,7 @@ public class GameService extends BaseClass {
     }
 
     public JoinResult joinGame(JoinRequest join, String authToken) throws DataAccessException {
-        isAuthenticated(authToken);
+        authDAO.getAuth(authToken);
         Integer gameID = join.gameID();
         String color = join.playerColor(); // will be WHITE or BLACK
         if (color == null || (!color.equals("BLACK") && !color.equals("WHITE")) || gameID == null) {
@@ -55,7 +51,7 @@ public class GameService extends BaseClass {
     }
 
     public ListResult listGames(String authToken) throws DataAccessException{
-        isAuthenticated(authToken);
+        authDAO.getAuth(authToken);
         return new ListResult(gameDAO.listGames());
     }
 }

@@ -31,11 +31,11 @@ public class CreateHandler implements Route {
             if (e.getMessage().equals("Unauthorized")) {
                 res.status(401);
             }
-            else if (e.getMessage().equals("Error connecting to database")) {
-                res.status(500);
+            else if (e.getMessage().equals("Bad Request")) {
+                res.status(400);
             }
             else {
-                res.status(400);
+                res.status(500);
             }
             createResult = new CreateResult("Error Creating Game");
         }

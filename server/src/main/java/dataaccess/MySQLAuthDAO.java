@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -14,24 +15,35 @@ public class MySQLAuthDAO implements AuthDao {
     }
 
     @Override
-    public void createAuth(AuthData authData) throws DataAccessException{
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        try {
-            executeUpdate(statement, authData.authToken(), authData.username());
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Failed to authenticate user");
+    public String createAuth(String username) throws DataAccessException{
+        String authToken = UUID.randomUUID().toString();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)")){
+                statement.setString(1, authToken);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 1062) {
+                throw new DataAccessException("Auth already taken");
+            }
+            else {
+                throw new DataAccessException("Database Error");
+            }
         }
+        return authToken;
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("DELETE FROM auth WHERE authToken=?")) {
+                getAuth(authToken);
                 statement.setString(1, authToken);
-                statement.executeQuery();
+                statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error deleting authToken");
+            throw new DataAccessException("Database Error");
         }
     }
 
@@ -41,13 +53,15 @@ public class MySQLAuthDAO implements AuthDao {
             try (var statement = conn.prepareStatement("SELECT authToken, username FROM auth WHERE authToken=?")){
                 statement.setString(1, authToken);
                 try (var results = statement.executeQuery()) {
-                    results.next();
+                    if (!results.next()) {
+                        throw new DataAccessException("Unauthorized");
+                    }
                     var username = results.getString("username");
                     return new AuthData(authToken, username);
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Unauthorized");
+            throw new DataAccessException("Database Error");
         }
     }
 
@@ -67,7 +81,7 @@ public class MySQLAuthDAO implements AuthDao {
             CREATE TABLE IF NOT EXISTS auth(
             `authToken` varchar(255) NOT NULL,
             `username` varchar(255) NOT NULL,
-            PRIMARY KEY (`username`)
+            PRIMARY KEY (`authToken`)
             )
             """
     };
@@ -82,30 +96,6 @@ public class MySQLAuthDAO implements AuthDao {
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to Configure Database");
-        }
-    }
-
-    private int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof AuthData u) ps.setString(i + 1, u.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Unable to update Database");
         }
     }
 }

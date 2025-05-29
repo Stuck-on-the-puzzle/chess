@@ -28,9 +28,13 @@ public class RegisterHandler implements Route {
             if (e.getMessage().equals("Username already taken")) {
                 res.status(403);
             }
-            else {
+            else if (e.getMessage().equals("Bad Request")){
                 res.status(400);
             }
+            else {
+                res.status(500);
+            }
+            System.out.println(res.status());
             registerResult = new RegisterResult("Error Registering");
         }
         return gson.toJson(registerResult);

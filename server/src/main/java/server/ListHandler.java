@@ -29,8 +29,11 @@ public class ListHandler implements Route {
             if (e.getMessage().equals("Unauthorized")) {
                 res.status(401);
             }
-            else {
+            else if (e.getMessage().equals("Bad Request")){
                 res.status(400);
+            }
+            else {
+                res.status(500);
             }
             listResult = new ListResult("Error Listing Game");
         }

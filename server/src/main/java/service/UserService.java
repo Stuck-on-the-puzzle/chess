@@ -24,17 +24,11 @@ public class UserService extends BaseClass {
         String username = registerRequest.username();
         String password = registerRequest.password();
         if (username == null || password == null) {
-            throw new DataAccessException("Missing Username or Password");
+            throw new DataAccessException("Bad Request");
         }
-        try { // Check requested username. If not already taken, make new user
-            userDAO.createUser(registerRequest);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Username already taken");
-        }
-        String authToken = generateToken();
-        authDAO.createAuth(new AuthData(authToken, username));
+        userDAO.createUser(registerRequest);
+        String authToken = authDAO.createAuth(username);
         // The user should be logged in now
-
         return new RegisterResult(username, authToken);
     }
 
@@ -44,24 +38,18 @@ public class UserService extends BaseClass {
         // check if user exists. If it does, check if password matches
         // if credentials are all good, create authToken and proceed
         if (username == null || password == null) {
-            throw new DataAccessException("Missing Username or Password");
+            throw new DataAccessException("Bad Request");
         }
         userDAO.checkCredentials(username, password);
-        String authToken = generateToken();
-        authDAO.createAuth(new AuthData(authToken, username));
+        String authToken = authDAO.createAuth(username);
         // user should be logged in now
         return new LoginResult(username, authToken);
     }
 
     public LogoutResult logout(String authToken) throws DataAccessException{
-        isAuthenticated(authToken);
         authDAO.deleteAuth(authToken);
         // user should be logged out now
-
         return new LogoutResult("Logout Successful");
     }
 
-    public static String generateToken() {
-        return UUID.randomUUID().toString();
-    }
 }

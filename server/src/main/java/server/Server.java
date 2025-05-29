@@ -1,10 +1,13 @@
 package server;
 
+import com.google.gson.Gson;
 import dataaccess.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
+import service.requestresult.ClearResult;
 import spark.*;
+
 
 public class Server {
 
@@ -55,6 +58,15 @@ public class Server {
         Spark.get("/game", listHandler); // list games
         Spark.post("/game", createHandler); // create game
         Spark.put("/game", joinHandler); // join game
+
+        // throw error for database error
+        Spark.exception(DataAccessException.class, (error, req, res) -> {
+            res.status(500); // Internal Server Error
+            ClearResult clearResult = new ClearResult("Error with Database/Server");
+            Gson gson = new Gson();
+            res.body(gson.toJson(clearResult));
+        });
+
         Spark.awaitInitialization();
         return Spark.port();
     }

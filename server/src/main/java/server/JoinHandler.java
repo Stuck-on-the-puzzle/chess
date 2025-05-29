@@ -34,8 +34,11 @@ public class JoinHandler implements Route {
             else if (e.getMessage().equals("Unauthorized")) {
                 res.status(401);
             }
-            else {
+            else if (e.getMessage().equals("Bad Request")){
                 res.status(400);
+            }
+            else {
+                res.status(500);
             }
             joinResult = new JoinResult("Error Joining Game");
         }

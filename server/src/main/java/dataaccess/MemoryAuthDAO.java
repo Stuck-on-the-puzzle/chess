@@ -4,6 +4,7 @@ import model.AuthData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDao {
     // use to store authentication data in a list or map for phase 3
@@ -15,8 +16,11 @@ public class MemoryAuthDAO implements AuthDao {
     }
 
     @Override
-    public void createAuth(AuthData authData) {
+    public String createAuth(String username) {
+        String authToken = UUID.randomUUID().toString();
+        AuthData authData = new AuthData(authToken, username);
         authDatadb.put(authData.authToken(), authData);
+        return authToken;
     }
 
     @Override

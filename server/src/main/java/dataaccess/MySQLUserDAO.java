@@ -24,7 +24,12 @@ public class MySQLUserDAO implements UserDao {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Username already taken");
+            if (e.getErrorCode() == 1062) {
+                throw new DataAccessException("Username already taken");
+            }
+            else {
+                throw new DataAccessException("Database Error");
+            }
         }
     }
 
@@ -84,7 +89,7 @@ public class MySQLUserDAO implements UserDao {
                     preparedStatement.executeUpdate();
                 }
             }
-        } catch (SQLException ex) {
+        } catch (SQLException e) {
             throw new DataAccessException("Unable to Configure Database");
         }
     }
