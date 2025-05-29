@@ -295,71 +295,51 @@ public class ChessPiece implements PieceMovesCalculator {
                 }
             }
 
-            // check pawn capturing enemies
-            if (col - 1 > 0) { // only check if there is a spot to the left to advance to
-                ChessPosition left = new ChessPosition(row + advance, col - 1);
-                ChessPiece leftOccupant = board.getPiece(left);
-                if (leftOccupant != null) {
-                    if (leftOccupant.getTeamColor() != color) {
-                        if (row + advance == promotionSpace) {
-                            ChessMove move = new ChessMove(myPosition, left, PieceType.ROOK);
-                            moves.add(move);
-                            move = new ChessMove(myPosition, left, PieceType.QUEEN);
-                            moves.add(move);
-                            move = new ChessMove(myPosition, left, PieceType.KNIGHT);
-                            moves.add(move);
-                            move = new ChessMove(myPosition, left, PieceType.BISHOP);
-                            moves.add(move);
-                        } else {
-                            ChessMove move = new ChessMove(myPosition, left, null);
-                            moves.add(move);
-                        }
-                    }
-                }
-            }
-
-            if (col + 1 < 9) { // only check if there is a spot to the right
-                ChessPosition right = new ChessPosition(row + advance, col + 1);
-                ChessPiece rightOccupant = board.getPiece(right);
-                if (rightOccupant != null) {
-                    if (rightOccupant.getTeamColor() != color) {
-                        if (row + advance == promotionSpace) {
-                            ChessMove move = new ChessMove(myPosition, right, PieceType.ROOK);
-                            moves.add(move);
-                            move = new ChessMove(myPosition, right, PieceType.QUEEN);
-                            moves.add(move);
-                            move = new ChessMove(myPosition, right, PieceType.KNIGHT);
-                            moves.add(move);
-                            move = new ChessMove(myPosition, right, PieceType.BISHOP);
-                            moves.add(move);
-                        } else {
-                            ChessMove move = new ChessMove(myPosition, right, null);
-                            moves.add(move);
-                        }
-                    }
-                }
-            }
-
             // normal pawn movement
-            ChessPosition endPosition = new ChessPosition(row + advance, col);
-            ChessPiece occupant = board.getPiece(endPosition);
-            if (occupant == null) {
-                if (row + advance == promotionSpace) {
-                    ChessMove move = new ChessMove(myPosition, endPosition, PieceType.ROOK);
-                    moves.add(move);
-                    move = new ChessMove(myPosition, endPosition, PieceType.QUEEN);
-                    moves.add(move);
-                    move = new ChessMove(myPosition, endPosition, PieceType.KNIGHT);
-                    moves.add(move);
-                    move = new ChessMove(myPosition, endPosition, PieceType.BISHOP);
-                    moves.add(move);
-                } else {
-                    ChessMove move = new ChessMove(myPosition, endPosition, null);
-                    moves.add(move);
-                }
-            }
+            addPawnAdvanceMove(board, moves, myPosition, row, col, advance, promotionSpace);
+
+            // pawn capturing enemies
+            addPawnCaptureMove(board, moves, myPosition, row, col, advance, col - 1, promotionSpace, color);
+            addPawnCaptureMove(board, moves, myPosition, row, col, advance, col + 1, promotionSpace, color);
         }
 
         return moves;
+    }
+
+    private void addPawnAdvanceMove(ChessBoard board, Collection<ChessMove> moves, ChessPosition start,
+                                    int row, int col, int advance, int promotionSpace) {
+        ChessPosition end = new ChessPosition(row + advance, col);
+        if (board.getPiece(end) == null) {
+            if (row + advance == promotionSpace) {
+                for (PieceType promotion : new PieceType[]{PieceType.ROOK, PieceType.QUEEN, PieceType.KNIGHT, PieceType.BISHOP}) {
+                    ChessMove move = new ChessMove(start, end, promotion);
+                    moves.add(move);
+                }
+            }
+            else {
+                moves.add(new ChessMove(start, end, null));
+            }
+        }
+    }
+
+    private void addPawnCaptureMove(ChessBoard board, Collection<ChessMove> moves, ChessPosition start,
+                                    int row, int col, int advance, int newCol, int promotionSpace, ChessGame.TeamColor color) {
+        if (newCol < 1 || newCol > 8) {
+            return; // not a possible move
+        }
+        ChessPosition endPos = new ChessPosition(row + advance, newCol);
+        ChessPiece occupant = board.getPiece(endPos);
+        if (occupant == null || occupant.getTeamColor() == color) {
+            return; // not a possible move
+        }
+        if (row + advance == promotionSpace) {
+            for (PieceType promotion : new PieceType[]{PieceType.ROOK, PieceType.QUEEN, PieceType.KNIGHT, PieceType.BISHOP}) {
+                ChessMove move = new ChessMove(start, endPos, promotion);
+                moves.add(move);
+            }
+        }
+        else {
+            moves.add(new ChessMove(start, endPos, null));
+        }
     }
 }
