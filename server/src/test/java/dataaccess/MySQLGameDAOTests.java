@@ -11,8 +11,6 @@ import service.UserService;
 
 public class MySQLGameDAOTests {
 
-    private final Gson serializer = new Gson();
-
     static UserDao userDAO;
     static AuthDao authDAO;
     static GameDao gameDAO;
@@ -157,7 +155,7 @@ public class MySQLGameDAOTests {
         gameDAO.createGame(game3);
         gameDAO.createGame(game4);
         gameDAO.clear();
-        // make sure if no games after clear
+        // make sure no games after clear
         Assertions.assertEquals(0, gameDAO.listGames().size());
     }
 }
