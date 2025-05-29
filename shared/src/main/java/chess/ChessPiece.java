@@ -69,18 +69,24 @@ public class ChessPiece implements PieceMovesCalculator {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if (getPieceType() == PieceType.PAWN)
+        if (getPieceType() == PieceType.PAWN) {
             return pawnMoves(board, myPosition);
-        else if (getPieceType() == PieceType.BISHOP)
+        }
+        else if (getPieceType() == PieceType.BISHOP) {
             return bishopMoves(board, myPosition);
-        else if (getPieceType() == PieceType.ROOK)
+        }
+        else if (getPieceType() == PieceType.ROOK) {
             return rookMoves(board, myPosition);
-        else if (getPieceType() == PieceType.KNIGHT)
+        }
+        else if (getPieceType() == PieceType.KNIGHT) {
             return knightMoves(board, myPosition);
-        else if (getPieceType() == PieceType.QUEEN)
+        }
+        else if (getPieceType() == PieceType.QUEEN) {
             return queenMoves(board, myPosition);
-        else if (getPieceType() == PieceType.KING)
+        }
+        else if (getPieceType() == PieceType.KING) {
             return kingMoves(board, myPosition);
+        }
         throw new RuntimeException("Error with PieceType");
     }
     
@@ -212,7 +218,8 @@ public class ChessPiece implements PieceMovesCalculator {
         int colJump = 0;
         while (row <= 8 && col <= 8 && row >= 1 && col >= 1) {
             // next few if statements check if the row/col is going to increase, decrease, or stay the same
-            // this allows the function to be used for both bishops and rooks it also increases how far from the start position a move needs to be calculated
+            // this allows the function to be used for both bishops and rooks
+            // it also increases how far from the start position a move needs to be calculated
             if (rowMove == 1) {
                 row++;
                 rowJump++;

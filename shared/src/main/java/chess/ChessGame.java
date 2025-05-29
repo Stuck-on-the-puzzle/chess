@@ -138,15 +138,11 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 ChessPosition pos = new ChessPosition(i, j);
                 ChessPiece piece = gameBoard.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() != teamColor) {
-                        ChessMove[] enemyMoves = piece.pieceMoves(gameBoard, pos).toArray(new ChessMove[0]);
-                        for (ChessMove move : enemyMoves) {
-                            if (Objects.equals(move.getEndPosition(), kingPos)) {
-                                return true;
-                            }
-                        }
-                    }
+                if (piece == null || piece.getTeamColor() == teamColor) {
+                    continue;
+                }
+                if (canAttackKing(piece, pos, kingPos)) {
+                    return true;
                 }
             }
         }
@@ -203,6 +199,15 @@ public class ChessGame {
         return enemyMoves.contains(kingPos);
     }
 
+    private boolean canAttackKing(ChessPiece piece, ChessPosition start, ChessPosition kingPos) {
+        for (ChessMove move : piece.pieceMoves(gameBoard, start)) {
+            if (Objects.equals(move.getEndPosition(), kingPos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public Collection<ChessPosition> getTeamPossibleEndPos(TeamColor teamColor) {
         Collection<ChessPosition> teamPos = new ArrayList<>();
@@ -210,13 +215,12 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 ChessPosition pos = new ChessPosition(i, j);
                 ChessPiece piece = gameBoard.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() == teamColor) {
-                        ChessMove[] moves = validMoves(pos).toArray(new ChessMove[0]);
-                        for (ChessMove move : moves) {
-                            teamPos.add(move.getEndPosition());
-                        }
-                    }
+                if (piece == null || piece.getTeamColor() != teamColor) {
+                    continue;
+                }
+                Collection<ChessMove> moves = validMoves(pos);
+                for (ChessMove move : moves) {
+                    teamPos.add(move.getEndPosition());
                 }
             }
         }
