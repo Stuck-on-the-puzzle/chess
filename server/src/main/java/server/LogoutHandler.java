@@ -28,6 +28,9 @@ public class LogoutHandler implements Route {
             if (e.getMessage().equals("Unauthorized")) {
                 res.status(401);
             }
+            else if (e.getMessage().equals("Bad Request")) {
+                res.status(400);
+            }
             else {
                 res.status(500);
             }

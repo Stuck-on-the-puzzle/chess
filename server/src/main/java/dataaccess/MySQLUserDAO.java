@@ -55,7 +55,7 @@ public class MySQLUserDAO implements UserDao {
     @Override
     public void checkCredentials(String username, String password) throws DataAccessException {
         if (!verifyUser(username, password)) {
-            throw new DataAccessException("Wrong Username or Password");
+            throw new DataAccessException("Incorrect Username/Password");
         }
     }
 

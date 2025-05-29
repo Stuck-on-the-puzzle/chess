@@ -42,7 +42,7 @@ public class GameService extends BaseClass {
         Integer gameID = join.gameID();
         String color = join.playerColor(); // will be WHITE or BLACK
         if (color == null || (!color.equals("BLACK") && !color.equals("WHITE")) || gameID == null) {
-            throw new DataAccessException("Error with player color");
+            throw new DataAccessException("Bad Request");
         }
         String username = authDAO.getAuth(authToken).username();
         gameDAO.joinGame(gameID, color, username);

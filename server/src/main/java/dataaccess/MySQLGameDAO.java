@@ -83,12 +83,12 @@ public class MySQLGameDAO implements GameDao {
         GameData game = getGame(gameID);
         if (playerColor.equals("WHITE")) {
             if (game.whiteUsername() != null) {
-                throw new DataAccessException("Color already chosen");
+                throw new DataAccessException("Spot Already Taken");
             }
             updatePlayerColor(gameID, "whiteUsername", username);
         } else {
             if (game.blackUsername() != null) {
-                throw new DataAccessException("Color already chosen");
+                throw new DataAccessException("Spot Already Taken");
             }
             updatePlayerColor(gameID, "blackUsername", username);
         }

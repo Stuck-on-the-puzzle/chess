@@ -27,9 +27,9 @@ public class LoginHandler implements Route {
             loginResult = userService.login(loginRequest);
         } catch (DataAccessException e) {
             System.out.println(e.getMessage());
-            if (e.getMessage().equals("Incorrect Password") || e.getMessage().equals("User Does Not Exist")) {
+            if (e.getMessage().equals("Incorrect Username/Password") || e.getMessage().equals("User Does Not Exist")) {
                 res.status(401);
-            } else if (e.getMessage().equals("Missing Username or Password")) {
+            } else if (e.getMessage().equals("Bad Request")) {
                 res.status(400);
             }
             else {
