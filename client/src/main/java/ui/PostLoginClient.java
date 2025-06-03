@@ -1,6 +1,9 @@
 package ui;
 
 import exception.ResponseException;
+import requestresult.CreateRequest;
+import requestresult.CreateResult;
+import requestresult.LogoutResult;
 
 import java.util.Arrays;
 
@@ -34,29 +37,24 @@ public class PostLoginClient {
 
     public String logout(String... params) throws ResponseException {
         if (params.length >= 1) {
-            state = State.SIGNEDIN;
-            visitorName = String.join("-", params);
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.enterPetShop(visitorName);
-            return String.format("You signed in as %s.", visitorName);
+            var authToken = params[0];
+            LogoutResult result = server.logout(authToken);
+            return String.format("Logged Out Successfully %s.", result.message());
         }
         throw new ResponseException(400, "Expected: <yourname>");
     }
 
     public String createGame(String... params) throws ResponseException {
-        assertSignedIn();
         if (params.length >= 2) {
-            var name = params[0];
-            var type = PetType.valueOf(params[1].toUpperCase());
-            var pet = new Pet(0, name, type);
-            pet = server.addPet(pet);
+            var gameName = params[0];
+            CreateRequest createRequest = new CreateRequest(gameName);
+            CreateResult result = server.createGame(createRequest);
             return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
         }
         throw new ResponseException(400, "Expected: <name> <CAT|DOG|FROG>");
     }
 
     public String listGames() throws ResponseException {
-        assertSignedIn();
         var pets = server.listPets();
         var result = new StringBuilder();
         var gson = new Gson();
