@@ -1,13 +1,16 @@
 package ui;
 
 import exception.ResponseException;
+import model.UserData;
+import requestresult.LoginRequest;
+import requestresult.LoginResult;
+import requestresult.RegisterResult;
 
 import java.util.Arrays;
 
 public class PreLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
-    private String state = "Logged Out";
 
     public PreLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -30,47 +33,36 @@ public class PreLoginClient {
         }
     }
 
-//    public String login(String... params) throws ResponseException {
-//        if (params.length >= 1) {
-//            state = State.SIGNEDIN;
-//            visitorName = String.join("-", params);
-//            ws = new WebSocketFacade(serverUrl, notificationHandler);
-//            ws.enterPetShop(visitorName);
-//            return String.format("You signed in as %s.", visitorName);
-//        }
-//        throw new ResponseException(400, "Expected: <yourname>");
-//    }
-//
-//    public String register(String... params) throws ResponseException {
-//        assertSignedIn();
-//        if (params.length >= 2) {
-//            var name = params[0];
-//            var type = PetType.valueOf(params[1].toUpperCase());
-//            var pet = new Pet(0, name, type);
-//            pet = server.addPet(pet);
-//            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
-//        }
-//        throw new ResponseException(400, "Expected: <name> <CAT|DOG|FROG>");
-//    }
-
-    public String help() {
-        if (state.equals("Logged Out")) {
-            return """
-                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                    login <USERNAME> <PASSWORD> - to play chess
-                    quit - playing chess
-                    help - with possible commands
-                    """;
+    public String login(String... params) throws ResponseException {
+        if (params.length >= 2) {
+            var username = params[0];
+            var password = params[1];
+            var loginRequest = new LoginRequest(username, password);
+            LoginResult result = server.login(loginRequest);
+            return String.format("Logged in as %s. ", result.username());
         }
-        return """
-                I'm not sure if this needs to stay
-                """;
+        throw new ResponseException(400, "Expected:login <USERNAME> <PASSWORD>");
     }
 
-    private void assertSignedIn() throws ResponseException {
-        if (state == "Logged Out") {
-            throw new ResponseException(400, "You must sign in");
+    public String register(String... params) throws ResponseException {
+        if (params.length >= 3) {
+            var username = params[0];
+            var password = params[1];
+            var email = params[2];
+            var userData = new UserData(username, password, email);
+            RegisterResult result = server.register(userData);
+            return String.format("Registered user %s. Username:", result.username());
         }
+        throw new ResponseException(400, "Expected: register <USERNAME> <PASSWORD> <EMAIL>");
+    }
+
+    public String help() {
+        return """
+               register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+               login <USERNAME> <PASSWORD> - to play chess
+               quit - playing chess
+               help - with possible commands
+               """;
     }
 
 }

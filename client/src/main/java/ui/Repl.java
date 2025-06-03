@@ -8,13 +8,13 @@ public class Repl {
 
     private final PreLoginClient preLoginClient;
     private final PostLoginClient postLoginClient;
-    private final GameplayClient gameplayClient;
+//    private final GameplayClient gameplayClient;
     private String state = "Logged Out";
 
     public Repl(String serverUrl) {
         preLoginClient = new PreLoginClient(serverUrl);
         postLoginClient = new PostLoginClient(serverUrl);
-        gameplayClient = new GameplayClient(serverUrl);
+//        gameplayClient = new GameplayClient(serverUrl);
     }
     public void run() {
         String whiteKing = "♔";
