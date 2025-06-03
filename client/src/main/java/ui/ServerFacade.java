@@ -3,6 +3,7 @@ package ui;
 import com.google.gson.Gson;
 import exception.ResponseException;
 
+import model.UserData;
 import requestresult.*;
 
 import java.io.IOException;
@@ -24,34 +25,34 @@ public class ServerFacade {
         return this.makeRequest("DELETE", path, null, null);
     }
 
-    public RegisterResult register() {
+    public RegisterResult register(UserData registerRequest) {
         var path = "/user";
-        return this.makeRequest("POST", path, , RegisterResult.class);
+        return this.makeRequest("POST", path, registerRequest, RegisterResult.class);
     }
 
-    public LoginResult login() {
+    public LoginResult login(LoginRequest loginRequest) {
         var path = "/session";
-        return this.makeRequest("POST", path, , ClearResult.class);
+        return this.makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
-    public LogoutResult logout() {
+    public LogoutResult logout(String authToken) {
         var path = "/session";
-        return this.makeRequest("DELETE", path, , ClearResult.class);
+        return this.makeRequest("DELETE", path, authToken, LogoutResult.class);
     }
 
     public ListResult listGames() {
         var path = "/game";
-        return this.makeRequest("GET", path, , ClearResult.class);
+        return this.makeRequest("GET", path, null, ListResult.class);
     }
 
-    public CreateResult createGame() {
+    public CreateResult createGame(CreateRequest createRequest) {
         var path = "/game";
-        return this.makeRequest("POST", path, , ClearResult.class);
+        return this.makeRequest("POST", path, createRequest, CreateResult.class);
     }
 
-    public JoinResult joinGame() {
+    public JoinResult joinGame(JoinRequest joinRequest) {
         var path = "/game";
-        return this.makeRequest("PUT", path, , ClearResult.class);
+        return this.makeRequest("PUT", path, joinRequest, JoinResult.class);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
