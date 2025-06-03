@@ -1,8 +1,10 @@
 package ui;
 
+import com.google.gson.Gson;
 import exception.ResponseException;
 import requestresult.CreateRequest;
 import requestresult.CreateResult;
+import requestresult.ListResult;
 import requestresult.LogoutResult;
 
 import java.util.Arrays;
@@ -26,7 +28,7 @@ public class PostLoginClient {
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "play" -> playGame(params);
-                case "observe" -> observeGame(params);
+                case "observe" -> observeGame();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -49,46 +51,26 @@ public class PostLoginClient {
             var gameName = params[0];
             CreateRequest createRequest = new CreateRequest(gameName);
             CreateResult result = server.createGame(createRequest);
-            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
+            return String.format("Created Game with ID: %s. ", result.gameID());
         }
         throw new ResponseException(400, "Expected: <name> <CAT|DOG|FROG>");
     }
 
     public String listGames() throws ResponseException {
-        var pets = server.listPets();
-        var result = new StringBuilder();
+        ListResult result = server.listGames();
         var gson = new Gson();
-        for (var pet : pets) {
-            result.append(gson.toJson(pet)).append('\n');
-        }
-        return result.toString();
+        return gson.toJson(result);
     }
 
     public String playGame(String... params) throws ResponseException {
-        assertSignedIn();
         if (params.length == 1) {
-            try {
-                var id = Integer.parseInt(params[0]);
-                var pet = getPet(id);
-                if (pet != null) {
-                    server.deletePet(id);
-                    return String.format("%s says %s", pet.name(), pet.sound());
-                }
-            } catch (NumberFormatException ignored) {
-            }
+            return "Implement Play Game";
         }
         throw new ResponseException(400, "Expected: <pet id>");
     }
 
     public String observeGame() throws ResponseException {
-        assertSignedIn();
-        var buffer = new StringBuilder();
-        for (var pet : server.listPets()) {
-            buffer.append(String.format("%s says %s%n", pet.name(), pet.sound()));
-        }
-
-        server.deleteAllPets();
-        return buffer.toString();
+        return "Implement Observe Game";
     }
 
     public String help() {

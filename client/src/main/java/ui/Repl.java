@@ -8,7 +8,7 @@ public class Repl {
 
     private final PreLoginClient preLoginClient;
     private final PostLoginClient postLoginClient;
-//    private final GameplayClient gameplayClient;
+    private final GameplayClient gameplayClient;
     private String state = "Logged Out";
 
     public Repl(String serverUrl) {
