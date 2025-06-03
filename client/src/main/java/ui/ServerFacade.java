@@ -3,6 +3,8 @@ package ui;
 import com.google.gson.Gson;
 import exception.ResponseException;
 
+import requestresult.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

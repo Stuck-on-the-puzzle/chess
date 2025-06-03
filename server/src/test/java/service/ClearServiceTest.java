@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import org.junit.jupiter.api.*;
-import service.requestresult.RegisterResult;
+import requestresult.RegisterResult;
 
 public class ClearServiceTest extends GameClearSetup {
 

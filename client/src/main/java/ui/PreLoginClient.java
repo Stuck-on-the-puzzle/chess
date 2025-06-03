@@ -1,6 +1,6 @@
 package ui;
 
 public class PreLoginClient {
-    private final ServerFacade server;
+//    private final ServerFacade server;
 
 }

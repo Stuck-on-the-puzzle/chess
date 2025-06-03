@@ -2,7 +2,10 @@ package service;
 
 import dataaccess.*;
 import model.UserData;
-import service.requestresult.*;
+import requestresult.LoginRequest;
+import requestresult.LoginResult;
+import requestresult.LogoutResult;
+import requestresult.RegisterResult;
 
 import java.util.UUID;
 

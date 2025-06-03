@@ -1,4 +1,4 @@
-package service.requestresult;
+package requestresult;
 
 public record CreateResult(Integer gameID, String message) {
 

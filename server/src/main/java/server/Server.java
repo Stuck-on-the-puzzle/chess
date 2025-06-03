@@ -5,7 +5,7 @@ import dataaccess.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-import service.requestresult.ClearResult;
+import requestresult.ClearResult;
 import spark.*;
 
 

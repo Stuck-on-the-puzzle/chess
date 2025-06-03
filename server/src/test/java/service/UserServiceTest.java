@@ -4,9 +4,9 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.requestresult.LoginRequest;
-import service.requestresult.LoginResult;
-import service.requestresult.RegisterResult;
+import requestresult.LoginRequest;
+import requestresult.LoginResult;
+import requestresult.RegisterResult;
 
 public class UserServiceTest {
 
@@ -82,6 +82,8 @@ public class UserServiceTest {
     @Test
     @DisplayName("Logout Test Negative")
     public void logoutUserNeg() throws DataAccessException {
+//        Assertions.assertNull(authDAO.find("randomAuth"));
+//        Assertions.assertThrows(DataAccessException.class, () -> userService.logout("randomAuth"));
         // check that unauthorized token causes an error
         Assertions.assertThrows(DataAccessException.class, () -> userService.logout("randomAuth"));
     }

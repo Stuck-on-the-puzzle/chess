@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.GameData;
-import service.requestresult.*;
+import requestresult.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 

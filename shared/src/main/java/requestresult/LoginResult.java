@@ -1,4 +1,4 @@
-package service.requestresult;
+package requestresult;
 
 public record LoginResult(String username, String authToken, String message) {
     // Success constructor

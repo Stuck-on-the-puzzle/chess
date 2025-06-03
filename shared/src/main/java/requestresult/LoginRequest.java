@@ -1,4 +1,4 @@
-package service.requestresult;
+package requestresult;
 
 public record LoginRequest(String username, String password) {
 }

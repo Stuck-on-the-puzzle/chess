@@ -3,7 +3,7 @@ package service;
 import dataaccess.*;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import service.requestresult.*;
+import requestresult.*;
 
 public class GameServiceTest extends GameClearSetup{
 
