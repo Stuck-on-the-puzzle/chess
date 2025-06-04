@@ -72,7 +72,7 @@ public class PostLoginClient {
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
-            var playerColor = params[0];
+            var playerColor = params[0].toUpperCase();
             int gameID;
             try {
                 gameID = Integer.parseInt(params[1]);
@@ -81,9 +81,9 @@ public class PostLoginClient {
             }
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID);
             JoinResult result = server.joinGame(joinRequest, authToken);
-            return "Just Draw Board For Time Being";
+            return "Joined Game! Maybe this is supposed to print out board";
         }
-        throw new ResponseException(400, "Expected: join <ID>");
+        throw new ResponseException(400, "Expected: join <PIECE_COLOR> <ID>");
     }
 
     public String observeGame() throws ResponseException {
@@ -95,8 +95,8 @@ public class PostLoginClient {
         return """
                create <NAME> - a game
                list - games
-               join <ID> - a game
-               observe <PIECE_COLOR> <ID> - a game
+               join <PIECE_COLOR> <ID> - a game
+               observe <ID> - a game
                logout - when you are done
                quit - playing chess
                help - with possible commands

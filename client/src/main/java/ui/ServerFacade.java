@@ -61,6 +61,7 @@ public class ServerFacade {
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            http.addRequestProperty("Accept", "application/json");
             if (authToken != null && !authToken.isBlank()) {
                 http.addRequestProperty("Authorization", authToken);
             }
