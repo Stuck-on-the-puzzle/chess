@@ -35,32 +35,35 @@ public class ServerFacade {
         return this.makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) throws ResponseException {
+    public void logout(LogoutRequest logoutRequest) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("DELETE", path, logoutRequest, LogoutResult.class);
+        this.makeRequest("DELETE", path, null, null, logoutRequest.authToken());
     }
 
-    public ListResult listGames() throws ResponseException {
+    public ListResult listGames(String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("GET", path, null, ListResult.class);
+        return this.makeRequest("GET", path, null, ListResult.class, authToken);
     }
 
-    public CreateResult createGame(CreateRequest createRequest) throws ResponseException {
+    public CreateResult createGame(CreateRequest createRequest, String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("POST", path, createRequest, CreateResult.class);
+        return this.makeRequest("POST", path, createRequest, CreateResult.class, authToken);
     }
 
-    public JoinResult joinGame(JoinRequest joinRequest) throws ResponseException {
+    public JoinResult joinGame(JoinRequest joinRequest, String authToken) throws ResponseException {
         var path = "/game";
-        return this.makeRequest("PUT", path, joinRequest, JoinResult.class);
+        return this.makeRequest("PUT", path, joinRequest, JoinResult.class, authToken);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            if (authToken != null && !authToken.isBlank()) {
+                http.addRequestProperty("Authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();
@@ -69,6 +72,10 @@ public class ServerFacade {
         } catch (Exception e) {
             throw new ResponseException(500, e.getMessage());
         }
+    }
+
+    private <T> T makeRequest(String method, String path, Object request, Class<T>  responseClass) throws ResponseException {
+        return makeRequest(method, path, request, responseClass, null);
     }
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {

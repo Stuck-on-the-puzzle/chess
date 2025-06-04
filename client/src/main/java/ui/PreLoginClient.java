@@ -26,7 +26,8 @@ public class PreLoginClient {
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "quit" -> "quit";
-                default -> help();
+                case "help" -> help();
+                default -> "Invalid Input. Type help";
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -34,7 +35,7 @@ public class PreLoginClient {
     }
 
     public String login(String... params) throws ResponseException {
-        if (params.length >= 2) {
+        if (params.length == 2) {
             var username = params[0];
             var password = params[1];
             var loginRequest = new LoginRequest(username, password);
@@ -45,7 +46,7 @@ public class PreLoginClient {
     }
 
     public String register(String... params) throws ResponseException {
-        if (params.length >= 3) {
+        if (params.length == 3) {
             var username = params[0];
             var password = params[1];
             var email = params[2];
