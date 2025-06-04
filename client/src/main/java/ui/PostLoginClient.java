@@ -12,6 +12,7 @@ public class PostLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
     private String authToken;
+    private HashSet<GameData> games;
 
     public PostLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -32,7 +33,7 @@ public class PostLoginClient {
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "join" -> joinGame(params);
-                case "observe" -> observeGame();
+                case "observe" -> observeGame(params);
                 case "quit" -> "quit";
                 case "help" -> help();
                 default -> "Invalid Input. Type help";
@@ -72,6 +73,7 @@ public class PostLoginClient {
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length == 2) {
+            refreshGames();
             var playerColor = params[0].toUpperCase();
             int gameID;
             try {
@@ -86,9 +88,41 @@ public class PostLoginClient {
         throw new ResponseException(400, "Expected: join <PIECE_COLOR> <ID>");
     }
 
-    public String observeGame() throws ResponseException {
-        return "Just Draw Board For Time Being";
-//        throw new ResponseException(400, "Expected: observe <ID>");
+    public String observeGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+            refreshGames();
+            int gameID;
+            try {
+                 gameID = Integer.parseInt(params[0]);
+            } catch (NumberFormatException e) {
+                throw new ResponseException(400, "Invalid Game ID");
+            }
+            GameData selectedGame = null;
+            for (GameData game: games) {
+                if (game.gameID() == gameID) {
+                    selectedGame = game;
+                    break;
+                }
+            }
+            if (selectedGame == null) {
+                throw new ResponseException(400, "Game Not Found");
+            }
+            PrintBoard board = new PrintBoard(selectedGame.game().getBoard());
+            board.printBoard();
+            return "Here is the Board";
+        }
+        throw new ResponseException(400, "Expected: observe <ID>");
+
+    }
+
+    private void refreshGames() throws ResponseException{
+        try {
+            games = new HashSet<>();
+            HashSet<GameData> gameList = server.listGames(authToken).games();
+            games.addAll(gameList);
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "Can't Refresh Games");
+        }
     }
 
     public String help() {
