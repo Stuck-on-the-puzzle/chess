@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.GameData;
 import requestresult.*;
@@ -30,7 +31,7 @@ public class GameService {
         } while (gameDAO.usedGameID(gameID));
 
         try {
-            gameDAO.createGame(new GameData(gameID, null, null, create.gameName(), null));
+            gameDAO.createGame(new GameData(gameID, null, null, create.gameName(), new ChessGame()));
         } catch (DataAccessException e) {
             throw new DataAccessException("Bad Request");
         }

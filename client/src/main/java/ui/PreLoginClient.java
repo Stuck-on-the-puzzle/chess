@@ -25,6 +25,7 @@ public class PreLoginClient {
             return switch (cmd) {
                 case "login" -> login(params);
                 case "register" -> register(params);
+                case "clear" -> clear(); // needs to be taken out by the end of the project
                 case "quit" -> "quit";
                 case "help" -> help();
                 default -> "Invalid Input. Type help";
@@ -57,10 +58,16 @@ public class PreLoginClient {
         throw new ResponseException(400, "Expected: register <USERNAME> <PASSWORD> <EMAIL>");
     }
 
+    public String clear() throws ResponseException {
+        server.clear();
+        return "All Data Cleared!";
+    }
+
     public String help() {
         return """
                register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                login <USERNAME> <PASSWORD> - to play chess
+               clear - all data
                quit - playing chess
                help - with possible commands
                """;

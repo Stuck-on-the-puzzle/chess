@@ -21,21 +21,21 @@ public class PrintBoard {
         String colLabels = "abcdefgh";
         String displayLabels = "  " + (reversed ? new StringBuilder(colLabels).reverse().toString() : colLabels);
         System.out.println(displayLabels);
-        for (int row = 1; row < 9; row++) {
-            int realRow = reversed ? 8- row : row;
+        for (int row = 8; row > 0; row--) {
+            int realRow = reversed ? 9 - row : row;
             System.out.print(realRow + " ");
             for (int col = 1; col < 9; col++) {
-                int realCol = reversed ? 8 - col : col;
-                ChessPosition currentPos = new ChessPosition(realRow, realCol);
+                int realCol = reversed ? 9 - col : col;
+                ChessPosition currentPos = new ChessPosition(row, realCol);
                 ChessPiece piece = board.getPiece(currentPos);
                 if (piece != null) {
-                    System.out.print(getSymbol(piece) + " ");
+                    System.out.print(getSymbol(piece));
                 }
                 else {
                     System.out.print(EscapeSequences.EMPTY);
                 }
             }
-            System.out.println(realRow + 1);
+            System.out.println(realRow);
         }
         System.out.println(displayLabels);
     }

@@ -107,6 +107,9 @@ public class PostLoginClient {
             if (selectedGame == null) {
                 throw new ResponseException(400, "Game Not Found");
             }
+            System.out.println(selectedGame);
+            System.out.println(selectedGame.game());
+            System.out.println(selectedGame.game().getBoard());
             PrintBoard board = new PrintBoard(selectedGame.game().getBoard());
             board.printBoard();
             return "Here is the Board";
