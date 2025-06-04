@@ -2,20 +2,22 @@ package ui;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import requestresult.CreateRequest;
-import requestresult.CreateResult;
-import requestresult.ListResult;
-import requestresult.LogoutResult;
+import requestresult.*;
 
 import java.util.Arrays;
 
 public class PostLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
+    private String authToken;
 
     public PostLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+    }
+
+    public void setAuthToken(String token) {
+        this.authToken = token;
     }
 
     public String eval(String input) {
@@ -24,7 +26,7 @@ public class PostLoginClient {
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "logout" -> logout(params);
+                case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
                 case "play" -> playGame(params);
@@ -37,13 +39,13 @@ public class PostLoginClient {
         }
     }
 
-    public String logout(String... params) throws ResponseException {
-        if (params.length >= 1) {
-            var authToken = params[0];
-            LogoutResult result = server.logout(authToken);
-            return String.format("Logged Out Successfully %s.", result.message());
+    public String logout() throws ResponseException {
+        if (authToken != null && !authToken.isBlank()) {
+            LogoutRequest logoutRequest = new LogoutRequest(authToken);
+            server.logout(logoutRequest);
+            return "Logged Out Successfully.";
         }
-        throw new ResponseException(400, "Expected: <yourname>");
+        throw new ResponseException(400, "Error Logging Out");
     }
 
     public String createGame(String... params) throws ResponseException {
@@ -53,24 +55,29 @@ public class PostLoginClient {
             CreateResult result = server.createGame(createRequest);
             return String.format("Created Game with ID: %s. ", result.gameID());
         }
-        throw new ResponseException(400, "Expected: <name> <CAT|DOG|FROG>");
+        throw new ResponseException(400, "Expected: create <NAME>");
     }
 
     public String listGames() throws ResponseException {
-        ListResult result = server.listGames();
-        var gson = new Gson();
-        return gson.toJson(result);
+        try {
+            ListResult result = server.listGames();
+            var gson = new Gson();
+            return gson.toJson(result);
+        } catch (ResponseException e) {
+            throw new ResponseException(400, "No Games To List");
+        }
     }
 
     public String playGame(String... params) throws ResponseException {
         if (params.length == 1) {
             return "Just Draw Board For Time Being";
         }
-        throw new ResponseException(400, "Expected: ");
+        throw new ResponseException(400, "Expected: join <ID>");
     }
 
     public String observeGame() throws ResponseException {
         return "Just Draw Board For Time Being";
+//        throw new ResponseException(400, "Expected: observe <ID>");
     }
 
     public String help() {

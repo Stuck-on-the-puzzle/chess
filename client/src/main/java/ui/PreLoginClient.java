@@ -39,7 +39,7 @@ public class PreLoginClient {
             var password = params[1];
             var loginRequest = new LoginRequest(username, password);
             LoginResult result = server.login(loginRequest);
-            return String.format("Logged in as %s. ", result.username());
+            return String.format("Logged in as %s with authToken %s", result.username(), result.authToken());
         }
         throw new ResponseException(400, "Expected:login <USERNAME> <PASSWORD>");
     }
@@ -51,7 +51,7 @@ public class PreLoginClient {
             var email = params[2];
             var userData = new UserData(username, password, email);
             RegisterResult result = server.register(userData);
-            return String.format("Registered user %s. Username:", result.username());
+            return String.format("Registered user: %s", result.username());
         }
         throw new ResponseException(400, "Expected: register <USERNAME> <PASSWORD> <EMAIL>");
     }

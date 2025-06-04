@@ -35,9 +35,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
-    public LogoutResult logout(String authToken) throws ResponseException {
+    public LogoutResult logout(LogoutRequest logoutRequest) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("DELETE", path, authToken, LogoutResult.class);
+        return this.makeRequest("DELETE", path, logoutRequest, LogoutResult.class);
     }
 
     public ListResult listGames() throws ResponseException {

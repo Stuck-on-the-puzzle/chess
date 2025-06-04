@@ -37,8 +37,11 @@ public class Repl {
 
                     if (result.startsWith("Logged in as")) {
                         String[] parts = result.split(" ");
-                        username = parts[3].replace(".", "");
+                        username = parts[3];
+                        authToken = parts[6];
+                        postLoginClient.setAuthToken(authToken);
                         state = "Logged in";
+                        result = "Logged in as " + username;
                     }
                 }
 
