@@ -19,25 +19,44 @@ public class PrintBoard {
 
     void printBoard() {
         String colLabels = "abcdefgh";
-        String displayLabels = "  " + (reversed ? new StringBuilder(colLabels).reverse().toString() : colLabels);
-        System.out.println(displayLabels);
+        String displayCols = reversed ? new StringBuilder(colLabels).reverse().toString() : colLabels;
+
+        System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY);
+        for (String col : displayCols.split("")) {
+            if ((!reversed && col.equals("h")) || (reversed && col.equals("a"))) {
+                System.out.print("\u202F\u2006" + col + " \u2009");
+            }
+            else {
+                System.out.print("\u202F\u2006" + col + " \u202f\u2009\u200a");
+            }
+        }
+        System.out.println("   " + EscapeSequences.RESET_BG_COLOR);
+
         for (int row = 8; row > 0; row--) {
             int realRow = reversed ? 9 - row : row;
-            System.out.print(realRow + " ");
+            System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
             for (int col = 1; col < 9; col++) {
                 int realCol = reversed ? 9 - col : col;
-                ChessPosition currentPos = new ChessPosition(row, realCol);
+                ChessPosition currentPos = new ChessPosition(9-realRow, realCol);
                 ChessPiece piece = board.getPiece(currentPos);
-                if (piece != null) {
-                    System.out.print(getSymbol(piece));
-                }
-                else {
-                    System.out.print(EscapeSequences.EMPTY);
-                }
+                boolean isLightSquare = (realRow + realCol) % 2 == 1;
+                String bgColor = isLightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+                String symbol = (piece != null) ? getSymbol(piece) : EscapeSequences.EMPTY;
+
+                System.out.print(bgColor + symbol + EscapeSequences.RESET_BG_COLOR);
             }
-            System.out.println(realRow);
+            System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
         }
-        System.out.println(displayLabels);
+        System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY);
+        for (String col : displayCols.split("")) {
+            if ((!reversed && col.equals("h")) || (reversed && col.equals("a"))) {
+                System.out.print("\u202F\u2006" + col + " \u2009");
+            }
+            else {
+                System.out.print("\u202F\u2006" + col + " \u202f\u2009\u200a");
+            }
+        }
+        System.out.println("   " + EscapeSequences.RESET_BG_COLOR);
     }
 
     private String getSymbol(ChessPiece piece) {

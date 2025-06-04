@@ -1,6 +1,5 @@
 package ui;
 
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
 import requestresult.*;
@@ -82,8 +81,9 @@ public class PostLoginClient {
                 throw new ResponseException(400, "Invalid Game ID");
             }
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID);
-            JoinResult result = server.joinGame(joinRequest, authToken);
-            return "Joined Game! Maybe this is supposed to print out board";
+            server.joinGame(joinRequest, authToken);
+            printBoard(gameID, playerColor);
+            return "Joined Game!";
         }
         throw new ResponseException(400, "Expected: join <PIECE_COLOR> <ID>");
     }
@@ -97,22 +97,8 @@ public class PostLoginClient {
             } catch (NumberFormatException e) {
                 throw new ResponseException(400, "Invalid Game ID");
             }
-            GameData selectedGame = null;
-            for (GameData game: games) {
-                if (game.gameID() == gameID) {
-                    selectedGame = game;
-                    break;
-                }
-            }
-            if (selectedGame == null) {
-                throw new ResponseException(400, "Game Not Found");
-            }
-            System.out.println(selectedGame);
-            System.out.println(selectedGame.game());
-            System.out.println(selectedGame.game().getBoard());
-            PrintBoard board = new PrintBoard(selectedGame.game().getBoard());
-            board.printBoard();
-            return "Here is the Board";
+            printBoard(gameID, "WHITE");
+            return "Observing Game:" + gameID;
         }
         throw new ResponseException(400, "Expected: observe <ID>");
 
@@ -150,5 +136,23 @@ public class PostLoginClient {
             allGames.append(newGameLine);
         }
         return allGames.toString();
+    }
+
+    private void printBoard(int gameID, String color) throws ResponseException{
+        GameData selectedGame = null;
+        for (GameData game: games) {
+            if (game.gameID() == gameID) {
+                selectedGame = game;
+                break;
+            }
+        }
+        if (selectedGame == null) {
+            throw new ResponseException(400, "Game Not Found");
+        }
+        PrintBoard board = new PrintBoard(selectedGame.game().getBoard());
+        if (color.equalsIgnoreCase("BLACK")) {
+            board.setReversed(true);
+        }
+        board.printBoard();
     }
 }
