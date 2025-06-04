@@ -64,13 +64,13 @@ public class PostLoginClient {
 
     public String playGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            return "Implement Play Game";
+            return "Just Draw Board For Time Being";
         }
-        throw new ResponseException(400, "Expected: <pet id>");
+        throw new ResponseException(400, "Expected: ");
     }
 
     public String observeGame() throws ResponseException {
-        return "Implement Observe Game";
+        return "Just Draw Board For Time Being";
     }
 
     public String help() {
