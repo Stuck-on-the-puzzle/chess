@@ -47,7 +47,9 @@ public class BaseDAO {
             setParams(ps, params);
             ps.executeUpdate();
             try (var rs = ps.getGeneratedKeys()) {
-                if (rs.next()) return rs.getInt(1);
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
                 return 0;
             }
         } catch (SQLException | DataAccessException e) {
