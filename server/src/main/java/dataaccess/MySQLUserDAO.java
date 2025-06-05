@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MySQLUserDAO extends BaseDAO implements UserDao {
@@ -24,39 +25,44 @@ public class MySQLUserDAO extends BaseDAO implements UserDao {
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("INSERT INTO user (username, password, email) VALUES (?, ?, ?)")){
-                statement.setString(1, userData.username());
-                statement.setString(2, hashUserPassword(userData.password()));
-                statement.setString(3, userData.email());
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            if (e.getErrorCode() == 1062) {
+        try  {
+            String statement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            executeVoidUpdate(statement, userData.username(), hashUserPassword(userData.password()), userData.email());
+        } catch (DataAccessException e) {
+            if (e.getCause() instanceof SQLException se && se.getErrorCode() == 1062) {
                 throw new DataAccessException("Username already taken");
             }
             else {
-                throw new DataAccessException("Database Error");
+                throw e;
             }
         }
     }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")){
-                statement.setString(1, username);
-                try (var results = statement.executeQuery()) {
-                    if (!results.next()) {
-                        throw new DataAccessException("User does not exist");
+        String statement = "SELECT username, password, email FROM user WHERE username=?";
+        try {
+            return executeQuery(statement, rs -> {
+                try {
+                    if (rs.next()) {
+                        return new UserData(
+                                rs.getString("username"),
+                                rs.getString("password"),
+                                rs.getString("email")
+                        );
+                    } else {
+                        throw new DataAccessException("User not found");
                     }
-                    var password = results.getString("password");
-                    var email = results.getString("email");
-                    return new UserData(username, password, email);
+                } catch (SQLException | DataAccessException e) {
+                    throw new RuntimeException(e);
                 }
+            }, username);
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof DataAccessException) {
+                throw (DataAccessException) e.getCause();
+            } else {
+                throw e;
             }
-        } catch (SQLException e) {
-            throw new DataAccessException("User not found");
         }
     }
 
@@ -69,13 +75,7 @@ public class MySQLUserDAO extends BaseDAO implements UserDao {
 
     @Override
     public void clear() throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("DELETE from user")) {
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error clearing user data");
-        }
+        executeVoidUpdate("DELETE FROM user");
     }
 
     String hashUserPassword(String clearTextPassword) {

@@ -21,7 +21,7 @@ public class MemoryUserDAO implements UserDao {
             userDatadb.add(userData);
             return;
         }
-        throw new DataAccessException("User already exists");
+        throw new DataAccessException("Username already taken");
     }
 
     @Override
@@ -31,7 +31,7 @@ public class MemoryUserDAO implements UserDao {
                 return user;
             }
         }
-        throw new DataAccessException("Cannot get UserData");
+        throw new DataAccessException("User not found");
     }
 
     public void checkCredentials (String username, String password) throws DataAccessException{

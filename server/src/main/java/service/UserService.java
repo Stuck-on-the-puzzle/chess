@@ -29,6 +29,14 @@ public class UserService {
         if (username == null || password == null) {
             throw new DataAccessException("Bad Request");
         }
+        try {
+            userDAO.getUser(username);
+            throw new DataAccessException("Username already taken");
+        } catch (DataAccessException e) {
+            if (!e.getMessage().equals("User not found")) {
+                throw e;
+            }
+        }
         userDAO.createUser(registerRequest);
         String authToken = UUID.randomUUID().toString();
         authDAO.createAuth(authToken, username);

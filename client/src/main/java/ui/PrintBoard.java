@@ -20,18 +20,7 @@ public class PrintBoard {
     void printBoard() {
         String colLabels = "abcdefgh";
         String displayCols = reversed ? new StringBuilder(colLabels).reverse().toString() : colLabels;
-
-        System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY);
-        for (String col : displayCols.split("")) {
-            if ((!reversed && col.equals("h")) || (reversed && col.equals("a"))) {
-                System.out.print("\u202F\u2006" + col + " \u2009");
-            }
-            else {
-                System.out.print("\u202F\u2006" + col + " \u202f\u2009\u200a");
-            }
-        }
-        System.out.println("   " + EscapeSequences.RESET_BG_COLOR);
-
+        printColumnLabels(displayCols);
         for (int row = 8; row > 0; row--) {
             int realRow = reversed ? 9 - row : row;
             System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
@@ -47,16 +36,7 @@ public class PrintBoard {
             }
             System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
         }
-        System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY);
-        for (String col : displayCols.split("")) {
-            if ((!reversed && col.equals("h")) || (reversed && col.equals("a"))) {
-                System.out.print("\u202F\u2006" + col + " \u2009");
-            }
-            else {
-                System.out.print("\u202F\u2006" + col + " \u202f\u2009\u200a");
-            }
-        }
-        System.out.println("   " + EscapeSequences.RESET_BG_COLOR);
+        printColumnLabels(displayCols);
     }
 
     private String getSymbol(ChessPiece piece) {
@@ -79,5 +59,18 @@ public class PrintBoard {
             case "BLACK_PAWN" -> EscapeSequences.BLACK_PAWN;
             default -> "?";
         };
+    }
+
+    private void printColumnLabels(String displayCols) {
+        System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + EscapeSequences.EMPTY);
+        for (String col : displayCols.split("")) {
+            if ((!reversed && col.equals("h")) || (reversed && col.equals("a"))) {
+                System.out.print("\u202F\u2006" + col + " \u2009");
+            }
+            else {
+                System.out.print("\u202F\u2006" + col + " \u202f\u2009\u200a");
+            }
+        }
+        System.out.println("   " + EscapeSequences.RESET_BG_COLOR);
     }
 }

@@ -1,7 +1,9 @@
 package dataaccess;
 
 import model.AuthData;
+import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MySQLAuthDAO extends BaseDAO implements AuthDao {
@@ -20,57 +22,48 @@ public class MySQLAuthDAO extends BaseDAO implements AuthDao {
     }
 
     @Override
+    public void createAuth(String authToken, String username) throws DataAccessException{
+        String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        executeVoidUpdate(statement, authToken, username);
+    }
+
+    @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("DELETE FROM auth WHERE authToken=?")) {
-                getAuth(authToken);
-                statement.setString(1, authToken);
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Database Error");
-        }
+        getAuth(authToken);
+        executeVoidUpdate("DELETE FROM auth WHERE authToken = ?", authToken);
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT authToken, username FROM auth WHERE authToken=?")){
-                statement.setString(1, authToken);
-                try (var results = statement.executeQuery()) {
-                    if (!results.next()) {
+        String statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+        try {
+            return executeQuery(statement, rs -> {
+                try {
+                    if (rs.next()) {
+                        return new AuthData(
+                                rs.getString("authToken"),
+                                rs.getString("username")
+                        );
+                    } else {
+                        // This is the line that causes the problem if not handled properly
                         throw new DataAccessException("Unauthorized");
                     }
-                    var username = results.getString("username");
-                    return new AuthData(authToken, username);
+                } catch (SQLException | DataAccessException e) {
+                    throw new RuntimeException(e);
                 }
+            }, authToken);
+        } catch (RuntimeException e) {
+            // Unwrap DataAccessException and rethrow it
+            if (e.getCause() instanceof DataAccessException) {
+                throw (DataAccessException) e.getCause();
+            } else {
+                throw e;
             }
-        } catch (SQLException e) {
-            throw new DataAccessException("Database Error");
-        }
-    }
-
-    @Override
-    public void createAuth(String authToken, String username) throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("INSERT INTO auth (authToken, username) VALUES (?, ?)")){
-                statement.setString(1, authToken);
-                statement.setString(2, username);
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Database Error");
         }
     }
 
     @Override
     public void clear() throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("DELETE from auth")) {
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error clearing auth data");
-        }
+        executeVoidUpdate("DELETE FROM auth");
     }
 }

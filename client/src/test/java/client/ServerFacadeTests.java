@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 public class ServerFacadeTests {
 
     private static Server server;
-    private ServerFacade facade;
+    public ServerFacade facade;
     static int port;
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
     }
 
@@ -32,7 +32,7 @@ public class ServerFacadeTests {
 
     @BeforeEach
     void setup() {
-        facade = new ServerFacade("http://localhost:8080");
+        facade = new ServerFacade("http://localhost:" + port);
     }
 
     @AfterEach
