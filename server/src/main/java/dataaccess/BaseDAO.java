@@ -79,26 +79,4 @@ public class BaseDAO {
             throw new DataAccessException("Query failed");
         }
     }
-
-    protected <T> T safeMap(ResultSet rs, ResultSetMapper<T> mapper) {
-        try {
-            return mapper.map(rs);
-        } catch (SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @FunctionalInterface
-    protected interface ResultSetMapper<T> {
-        T map(ResultSet rs) throws SQLException, DataAccessException;
-    }
-
-    protected int create(String sql, Object... params) throws DataAccessException, ResponseException {
-        return executeUpdate(sql, params);
-    }
-
-    // General get method that returns an object of type T
-    protected <T> T get(String sql, Function<ResultSet, T> mapper, Object... params) throws DataAccessException {
-        return executeQuery(sql, mapper, params);
-    }
 }

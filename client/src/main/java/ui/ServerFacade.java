@@ -92,8 +92,6 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            String errorMessage = readErrorMessage(http);
-
             switch (status) {
                 case 400 -> throw new ResponseException(status, "Bad Request");
                 case 401 -> throw new ResponseException(status, "Unauthorized");
@@ -119,19 +117,5 @@ public class ServerFacade {
 
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
-    }
-
-    private String readErrorMessage(HttpURLConnection http) {
-        try (InputStream errorStream = http.getErrorStream()) {
-            if (errorStream != null) {
-                try (InputStreamReader reader = new InputStreamReader(errorStream)) {
-                    var json = new Gson().fromJson(reader, java.util.Map.class);
-                    return json != null && json.get("message") != null
-                            ? json.get("message").toString()
-                            : "Unknown error from server";
-                }
-            }
-        } catch (Exception ignored) {}
-        return "No error message provided";
     }
 }
