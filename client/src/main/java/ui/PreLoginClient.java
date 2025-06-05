@@ -53,7 +53,9 @@ public class PreLoginClient {
             var email = params[2];
             var userData = new UserData(username, password, email);
             RegisterResult result = server.register(userData);
-            return String.format("Registered user: %s", result.username());
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            LoginResult loginResult = server.login(loginRequest);
+            return String.format("Logged in as %s with authToken %s", result.username(), result.authToken());
         }
         throw new ResponseException(400, "Expected: register <USERNAME> <PASSWORD> <EMAIL>");
     }

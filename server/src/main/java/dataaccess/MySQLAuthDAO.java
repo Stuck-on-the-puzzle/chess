@@ -45,7 +45,6 @@ public class MySQLAuthDAO extends BaseDAO implements AuthDao {
                 }
             }), authToken);
         } catch (RuntimeException e) {
-            // Unwrap DataAccessException and rethrow it
             if (e.getCause() instanceof DataAccessException) {
                 throw (DataAccessException) e.getCause();
             } else {

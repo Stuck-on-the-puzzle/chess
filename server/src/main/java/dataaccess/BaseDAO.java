@@ -92,4 +92,13 @@ public class BaseDAO {
     protected interface ResultSetMapper<T> {
         T map(ResultSet rs) throws SQLException, DataAccessException;
     }
+
+    protected int create(String sql, Object... params) throws DataAccessException, ResponseException {
+        return executeUpdate(sql, params);
+    }
+
+    // General get method that returns an object of type T
+    protected <T> T get(String sql, Function<ResultSet, T> mapper, Object... params) throws DataAccessException {
+        return executeQuery(sql, mapper, params);
+    }
 }

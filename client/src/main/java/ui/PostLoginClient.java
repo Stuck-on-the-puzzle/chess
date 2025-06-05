@@ -5,6 +5,7 @@ import model.GameData;
 import requestresult.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class PostLoginClient {
@@ -12,6 +13,8 @@ public class PostLoginClient {
     private final String serverUrl;
     private String authToken;
     private HashSet<GameData> games;
+    private HashMap<Integer, Integer> localToServerGameIDs = new HashMap<>();
+    private int nextGameNumber = 1;
 
     public PostLoginClient(String serverUrl) {
         server = new ServerFacade(serverUrl);
@@ -56,7 +59,8 @@ public class PostLoginClient {
             var gameName = params[0];
             CreateRequest createRequest = new CreateRequest(gameName);
             CreateResult result = server.createGame(createRequest, authToken);
-            return String.format("Created Game with ID: %s. ", result.gameID());
+            localToServerGameIDs.put(nextGameNumber++, result.gameID());
+            return "Game Created";
         }
         throw new ResponseException(400, "Expected: create <NAME>");
     }
@@ -64,7 +68,15 @@ public class PostLoginClient {
     public String listGames() throws ResponseException {
         try {
             ListResult result = server.listGames(authToken);
-            return printGameData(result.games());
+            games = result.games();
+            for (GameData game : games) {
+                int serverID = game.gameID();
+                if (!localToServerGameIDs.containsValue(serverID)) {
+                    localToServerGameIDs.put(nextGameNumber++, serverID);
+                }
+            }
+
+            return printGameData(games);
         } catch (ResponseException e) {
             throw new ResponseException(400, "No Games To List");
         }
@@ -74,12 +86,13 @@ public class PostLoginClient {
         if (params.length == 2) {
             refreshGames();
             var playerColor = params[0].toUpperCase();
-            int gameID;
+            int localNumber;
             try {
-                gameID = Integer.parseInt(params[1]);
+                localNumber = Integer.parseInt(params[1]);
             } catch (NumberFormatException e) {
-                throw new ResponseException(400, "Invalid Game ID");
+                throw new ResponseException(400, "Invalid Game Number");
             }
+            int gameID = getGameIDNumberFromLocal(localNumber);
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID);
             server.joinGame(joinRequest, authToken);
             printBoard(gameID, playerColor);
@@ -91,14 +104,15 @@ public class PostLoginClient {
     public String observeGame(String... params) throws ResponseException {
         if (params.length == 1) {
             refreshGames();
-            int gameID;
+            int localNumber;
             try {
-                 gameID = Integer.parseInt(params[0]);
+                 localNumber = Integer.parseInt(params[0]);
             } catch (NumberFormatException e) {
-                throw new ResponseException(400, "Invalid Game ID");
+                throw new ResponseException(400, "Invalid Game Number");
             }
+            int gameID = getGameIDNumberFromLocal(localNumber);
             printBoard(gameID, "WHITE");
-            return "Observing Game:" + gameID;
+            return "Observing Game: " + localNumber;
         }
         throw new ResponseException(400, "Expected: observe <ID>");
 
@@ -126,12 +140,12 @@ public class PostLoginClient {
                """;
     }
 
-    private String printGameData(HashSet<GameData> games) {
+    private String printGameData(HashSet<GameData> games) throws ResponseException {
         StringBuilder allGames = new StringBuilder();
         for (GameData game : games) {
             String white = game.whiteUsername() != null ? game.whiteUsername() : "EmptySpot";
             String black = game.blackUsername() != null ? game.blackUsername() : "EmptySpot";
-            String newGameLine = "GameName: " + game.gameName() + "    GameID: " + game.gameID() +
+            String newGameLine = "GameNumber: " + getLocalNumberFromGameID(game.gameID()) +"    GameName: " + game.gameName() +
                     "    White: " + white + "    Black: " + black + '\n';
             allGames.append(newGameLine);
         }
@@ -154,5 +168,22 @@ public class PostLoginClient {
             board.setReversed(true);
         }
         board.printBoard();
+    }
+
+    private int getLocalNumberFromGameID(int gameID) throws ResponseException {
+        for (var entry : localToServerGameIDs.entrySet()) {
+            if (entry.getValue() == gameID) {
+                return entry.getKey();
+            }
+        }
+        throw new ResponseException(400, "Game Not Found");
+    }
+
+    private int getGameIDNumberFromLocal(int localNumber) throws ResponseException {
+        Integer serverID = localToServerGameIDs.get(localNumber);
+        if(serverID != null) {
+            return serverID;
+        }
+        throw new ResponseException(400, "Game Not Found");
     }
 }
