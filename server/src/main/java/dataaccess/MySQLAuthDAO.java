@@ -37,21 +37,13 @@ public class MySQLAuthDAO extends BaseDAO implements AuthDao {
     public AuthData getAuth(String authToken) throws DataAccessException {
         String statement = "SELECT authToken, username FROM auth WHERE authToken=?";
         try {
-            return executeQuery(statement, rs -> {
-                try {
-                    if (rs.next()) {
-                        return new AuthData(
-                                rs.getString("authToken"),
-                                rs.getString("username")
-                        );
-                    } else {
-                        // This is the line that causes the problem if not handled properly
-                        throw new DataAccessException("Unauthorized");
-                    }
-                } catch (SQLException | DataAccessException e) {
-                    throw new RuntimeException(e);
+            return executeQuery(statement, rs -> safeMap(rs, r -> {
+                if (r.next()) {
+                    return new AuthData(r.getString("authToken"), r.getString("username"));
+                } else {
+                    throw new DataAccessException("Unauthorized");
                 }
-            }, authToken);
+            }), authToken);
         } catch (RuntimeException e) {
             // Unwrap DataAccessException and rethrow it
             if (e.getCause() instanceof DataAccessException) {

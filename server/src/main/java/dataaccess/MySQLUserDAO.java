@@ -42,21 +42,13 @@ public class MySQLUserDAO extends BaseDAO implements UserDao {
     public UserData getUser(String username) throws DataAccessException {
         String statement = "SELECT username, password, email FROM user WHERE username=?";
         try {
-            return executeQuery(statement, rs -> {
-                try {
-                    if (rs.next()) {
-                        return new UserData(
-                                rs.getString("username"),
-                                rs.getString("password"),
-                                rs.getString("email")
-                        );
-                    } else {
-                        throw new DataAccessException("User not found");
-                    }
-                } catch (SQLException | DataAccessException e) {
-                    throw new RuntimeException(e);
+            return executeQuery(statement, rs -> safeMap(rs, r -> {
+                if (r.next()) {
+                    return new UserData(r.getString("username"), r.getString("password"), r.getString("email"));
+                } else {
+                    throw new DataAccessException("User not found");
                 }
-            }, username);
+            }), username);
         } catch (RuntimeException e) {
             if (e.getCause() instanceof DataAccessException) {
                 throw (DataAccessException) e.getCause();

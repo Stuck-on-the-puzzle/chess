@@ -27,11 +27,17 @@ public class BaseDAO {
     protected void setParams(PreparedStatement ps, Object... params) throws SQLException {
         for (var i = 0; i < params.length; i++) {
             var param = params[i];
-            if (param instanceof String p) ps.setString(i + 1, p);
-            else if (param instanceof Integer p) ps.setInt(i + 1, p);
-            else if (param instanceof Enum<?> p) ps.setString(i + 1, p.name());
-            else if (param == null) ps.setNull(i + 1, NULL);
-            else throw new SQLException("Unsupported parameter type");
+            if (param instanceof String p) {
+                ps.setString(i + 1, p);
+            } else if (param instanceof Integer p) {
+                ps.setInt(i + 1, p);
+            } else if (param instanceof Enum<?> p) {
+                ps.setString(i + 1, p.name());
+            } else if (param == null) {
+                ps.setNull(i + 1, NULL);
+            } else {
+                throw new SQLException("Unsupported parameter type");
+            }
         }
     }
 
@@ -70,5 +76,18 @@ public class BaseDAO {
         } catch (SQLException e) {
             throw new DataAccessException("Query failed");
         }
+    }
+
+    protected <T> T safeMap(ResultSet rs, ResultSetMapper<T> mapper) {
+        try {
+            return mapper.map(rs);
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FunctionalInterface
+    protected interface ResultSetMapper<T> {
+        T map(ResultSet rs) throws SQLException, DataAccessException;
     }
 }
