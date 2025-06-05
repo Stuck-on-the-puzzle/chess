@@ -79,4 +79,17 @@ public class BaseDAO {
             throw new DataAccessException("Query failed");
         }
     }
+
+    protected <T> T safeMap(ResultSet rs, ResultSetMapper<T> mapper) {
+        try {
+            return mapper.map(rs);
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @FunctionalInterface
+    protected interface ResultSetMapper<T> {
+        T map(ResultSet rs) throws SQLException, DataAccessException;
+    }
 }
