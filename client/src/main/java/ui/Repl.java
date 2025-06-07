@@ -1,10 +1,10 @@
 package ui;
 
+import websocket.messages.ServerMessage;
+
 import java.util.Scanner;
 
-import static java.awt.Color.GREEN;
-
-public class Repl {
+public class Repl implements NotificationHandler {
 
     private final PreLoginClient preLoginClient;
     private final PostLoginClient postLoginClient;
@@ -70,5 +70,10 @@ public class Repl {
         } else if (state.equals("Logged in")) {
             System.out.print("[LOGGED IN as " + username + "] >>> ");
         }
+    }
+
+    @Override
+    public void notify(ServerMessage serverMessage) {
+
     }
 }

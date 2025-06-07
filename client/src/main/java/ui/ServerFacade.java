@@ -18,7 +18,10 @@ public class ServerFacade {
 
     private final String serverUrl;
 
-    public ServerFacade(String url) { serverUrl = url; }
+    public ServerFacade(String url) {
+        serverUrl = url;
+
+    }
 
     public ClearResult clear() throws ResponseException {
         var path = "/db";
