@@ -21,24 +21,30 @@ public class WebsocketCommunicator {
             this.observer = observer;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            this.session = container.connectToServer(this, uri);
-
-            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            container.connectToServer(new Endpoint() {
                 @Override
-                public void onMessage(String message) {
-                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                    observer.notify(serverMessage);
+                public void onOpen(Session session, EndpointConfig config) {
+                    WebsocketCommunicator.this.session = session;
+
+                    session.addMessageHandler(new MessageHandler.Whole<String>() {
+                        @Override
+                        public void onMessage(String message) {
+                            ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                            observer.notify(serverMessage);
+                        }
+                    });
                 }
-            });
+            }, uri);
 
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, "Websocket connection error");
         }
     }
 
-    // gameplay functionality and things that need websocket
-
-
+    public void send(String message) {
+        this.session.getAsyncRemote().sendText(message);
+    }
+    
     /// Notifications:
     // 1 - User connects and message displays Player's name and team color
     // 2 - User connect as observer and display's observer's name
@@ -48,7 +54,7 @@ public class WebsocketCommunicator {
     // 6 - Player is in check. Display user's name
     // 7 - Player is in checkmate. Display user's name
 
-    /// Gameplay functionality
+    /// Gameplay functionality:
     // Help
     // Redraw Chess Board
     // Leave

@@ -1,10 +1,11 @@
 package ui;
 
+import Websocket.ServerMessageObserver;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
-public class Repl implements NotificationHandler {
+public class Repl implements ServerMessageObserver{
 
     private final PreLoginClient preLoginClient;
     private final PostLoginClient postLoginClient;
@@ -73,7 +74,7 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify(ServerMessage serverMessage) {
+    public void notify(ServerMessage message) {
 
     }
 }
