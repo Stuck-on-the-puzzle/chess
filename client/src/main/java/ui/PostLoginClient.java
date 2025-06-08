@@ -96,7 +96,7 @@ public class PostLoginClient {
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID);
             server.joinGame(joinRequest, authToken);
             printBoard(gameID, playerColor);
-            return "Joined Game!";
+            return String.format("Joined Game! %d with authToken %s", gameID, authToken);
         }
         throw new ResponseException(400, "Expected: join <PIECE_COLOR> <ID>");
     }
@@ -112,7 +112,7 @@ public class PostLoginClient {
             }
             int gameID = getGameIDNumberFromLocal(localNumber);
             printBoard(gameID, "WHITE");
-            return "Observing Game: " + localNumber;
+            return String.format("Observing Game! %d", gameID);
         }
         throw new ResponseException(400, "Expected: observe <ID>");
 

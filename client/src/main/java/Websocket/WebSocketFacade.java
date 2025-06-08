@@ -16,7 +16,7 @@ public class WebSocketFacade extends Endpoint {
 
     private final WebsocketCommunicator communicator;
 
-    WebSocketFacade(String serverURL, ServerMessageObserver observer) throws ResponseException {
+    public WebSocketFacade(String serverURL, ServerMessageObserver observer) throws ResponseException {
         this.communicator = new WebsocketCommunicator(serverURL, observer);
     }
 

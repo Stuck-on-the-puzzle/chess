@@ -1,23 +1,27 @@
 package ui;
 
 import Websocket.ServerMessageObserver;
+import exception.ResponseException;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
-public class Repl implements ServerMessageObserver{
+public class Repl implements ServerMessageObserver {
 
     private final PreLoginClient preLoginClient;
     private final PostLoginClient postLoginClient;
-//    private final GameplayClient gameplayClient;
+    private final String serverUrl;
+    private GameplayClient gameplayClient;
     private String state = "Logged Out";
     private String username;
     private String authToken;
+    private int gameID;
 
-    public Repl(String serverUrl) {
+    public Repl(String serverUrl) throws ResponseException {
+        this.serverUrl = serverUrl;
         preLoginClient = new PreLoginClient(serverUrl);
         postLoginClient = new PostLoginClient(serverUrl);
-//        gameplayClient = new GameplayClient(serverUrl);
+        gameplayClient = new GameplayClient(serverUrl, this);
     }
 
     public void run() {
@@ -49,11 +53,37 @@ public class Repl implements ServerMessageObserver{
                 else if (state.equals("Logged in")) {
                     result = postLoginClient.eval(line);
 
+
+                    if (line.toLowerCase().startsWith("join")) {
+                        String[] parts = result.split(" ");
+                        gameID = Integer.parseInt(parts[2]);
+                        authToken = parts[5];
+                        state = "Playing";
+                        result = "Joined Game!";
+
+                    }
+
+                    if (line.toLowerCase().startsWith("observe")) {
+                        String[] parts = result.split(" ");
+                        int numID = Integer.parseInt(parts[2]);
+                        state = "Observing";
+                        result = "Observing Game:" + numID;
+
+                    }
+
                     if (line.toLowerCase().startsWith("logout")) {
                         state = "Logged Out";
                         username = null;
                         authToken = null;
                     }
+                }
+
+                else if (state.equals("Playing")) {
+                    result = GameplayClient.eval(line);
+                }
+
+                else if (state.equals("Observing")) {
+                    result = GameplayClient.eval(line);
                 }
 
                 System.out.println(result);
