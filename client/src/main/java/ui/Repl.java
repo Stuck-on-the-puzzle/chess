@@ -79,11 +79,13 @@ public class Repl implements ServerMessageObserver {
                 }
 
                 else if (state.equals("Playing")) {
-                    result = GameplayClient.eval(line);
+                    result = gameplayClient.eval(line);
+                    gameplayClient.setAuth(authToken, gameID);
                 }
 
                 else if (state.equals("Observing")) {
-                    result = GameplayClient.eval(line);
+                    result = gameplayClient.eval(line);
+                    gameplayClient.setAuth(authToken, gameID);
                 }
 
                 System.out.println(result);
@@ -105,6 +107,26 @@ public class Repl implements ServerMessageObserver {
 
     @Override
     public void notify(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case NOTIFICATION -> {
+                System.out.println(message);
+                printPrompt();
+            }
+            
+            case LOAD_GAME -> {
+                System.out.println("Game Loaded.");
+                printPrompt();
+            }
 
+            case ERROR -> {
+                System.out.println("Error Received from server.");
+                printPrompt();
+            }
+
+            default -> {
+                System.out.println("Unknown Message Type.");
+                printPrompt();
+            }
+        }
     }
 }

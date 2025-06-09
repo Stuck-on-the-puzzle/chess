@@ -7,6 +7,7 @@ import exception.ResponseException;
 import model.GameData;
 import requestresult.JoinRequest;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,12 +23,18 @@ public class GameplayClient {
     private final ServerMessageObserver observer;
     private final String serverUrl;
     private String authToken;
+    private int gameID;
     private ChessGame game;
 
     public GameplayClient(String serverUrl, ServerMessageObserver observer) throws ResponseException {
         ws = new WebSocketFacade(serverUrl, observer);
         this.serverUrl = serverUrl;
         this.observer = observer;
+    }
+
+    public void setAuth(String authToken, int gameID) {
+        this.authToken =authToken;
+        this.gameID = gameID;
     }
 
     public String eval(String input) {
@@ -37,14 +44,14 @@ public class GameplayClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "redraw" -> redrawBoard();
-                case "highlight" -> highlightLegalMoves();
+                case "highlight" -> highlightLegalMoves(params);
                 case "move" -> makeMove(params);
                 case "leave" -> leave();
                 case "resign" -> resign();
                 case "help" -> help();
                 default -> "";
             };
-        } catch (ResponseException ex) {
+        } catch (ResponseException | IOException ex) {
             return ex.getMessage();
         }
     }
@@ -60,25 +67,39 @@ public class GameplayClient {
         throw new ResponseException(400, "Expected: <LEGAL SPACE>");
     }
 
-    public String makeMove(String... params) throws ResponseException {
+    public String makeMove(String... params) throws ResponseException, IOException {
         if (params.length == 2) {
+            ws.makeMove(authToken, gameID);
             return "Moved";
         }
-        throw new ResponseException(400, "Expected: <LEGAL SPACE>");
+        throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION PIECE (if applicable)>");
     }
 
     public String leave() throws ResponseException {
-        return "Left";
+        try {
+            ws.leave(authToken, gameID);
+            return "Left game but make sure this is websocket";
+        } catch (IOException e) {
+            throw new ResponseException(500, "Failed to leave game");
+        }
     }
 
     public String resign() throws ResponseException {
-        return "Resigned";
+        try {
+            ws.resign(authToken, gameID);
+            return "Resigned from game but make sure this is websocket";
+        } catch (IOException e) {
+            throw new ResponseException(500, "Failed to resign");
+        }
     }
 
     public String help() {
         return """
                redraw - the current board
-               
+               highlight - legal moves
+               move - a chess piece
+               leave - the game
+               resign - from the game
                help - with possible commands
                """;
     }
