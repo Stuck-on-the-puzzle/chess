@@ -2,6 +2,9 @@ package ui;
 
 import Websocket.ServerMessageObserver;
 import exception.ResponseException;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -10,6 +13,7 @@ public class Repl implements ServerMessageObserver {
 
     private final PreLoginClient preLoginClient;
     private final PostLoginClient postLoginClient;
+    private PrintBoard boardPrinter;
     private final String serverUrl;
     private GameplayClient gameplayClient;
     private String state = "Logged Out";
@@ -109,17 +113,24 @@ public class Repl implements ServerMessageObserver {
     public void notify(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> {
-                System.out.println(message);
+                var note = (Notification) message;
+                System.out.println(note.getMessage());
                 printPrompt();
             }
-            
+
             case LOAD_GAME -> {
+                var loadMessage = (LoadGameMessage) message;
+                var game = loadMessage.getGame();
                 System.out.println("Game Loaded.");
+                boardPrinter = new PrintBoard(game.getBoard());
+                boardPrinter.printBoard();
+                // maybe print info such as whose turn it is?
                 printPrompt();
             }
 
             case ERROR -> {
-                System.out.println("Error Received from server.");
+                var error = (ErrorMessage) message;
+                System.out.println(error.getMessage());
                 printPrompt();
             }
 
