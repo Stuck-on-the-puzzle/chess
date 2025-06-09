@@ -22,18 +22,19 @@ public class GameplayClient {
     private final WebSocketFacade ws;
     private final ServerMessageObserver observer;
     private final String serverUrl;
+    private PrintBoard printBoard;
     private String authToken;
     private int gameID;
     private ChessGame game;
-    private Map<String, Integer> rowMap;
-    private Map<String, Integer> colMap;
+    private final Map<String, Integer> rowMap;
+    private final Map<String, Integer> colMap;
 
     public GameplayClient(String serverUrl, ServerMessageObserver observer) throws ResponseException {
         ws = new WebSocketFacade(serverUrl, observer);
         this.serverUrl = serverUrl;
         this.observer = observer;
-        Map<String, Integer> rowMap = new HashMap<>();
-        Map<String, Integer> colMap = new HashMap<>();
+        this.rowMap = new HashMap<>();
+        this.colMap = new HashMap<>();
         for (int i = 0; i <= 8; i++) {
             char letter = (char) ('a' + i);
             rowMap.put(String.valueOf(i+1), i+1);
@@ -42,9 +43,10 @@ public class GameplayClient {
 
     }
 
-    public void setAuth(String authToken, int gameID) {
+    public void setAuth(String authToken, int gameID) throws IOException {
         this.authToken =authToken;
         this.gameID = gameID;
+        ws.connect(authToken, gameID);
     }
 
     public String eval(String input) {
@@ -67,12 +69,18 @@ public class GameplayClient {
     }
 
     public String redrawBoard() throws ResponseException {
-        return "Redrawn";
+        printBoard = new PrintBoard(game.getBoard());
+        printBoard.printBoard();
+        return "Current Board";
     }
 
     public String highlightLegalMoves(String... params) throws ResponseException {
-        if (params.length == 2) {
-            return "Highlighted";
+        if (params.length == 1) {
+            ChessPosition pos = getChessPosition(params[0]);
+            Collection<String> spacesToHighlight = getBoardSpaces(game.validMoves(pos));
+            printBoard = new PrintBoard(game.getBoard());
+            printBoard.printHighlightedBoard(spacesToHighlight);
+            return "Highlighted Moves";
         }
         throw new ResponseException(400, "Expected: <LEGAL SPACE>");
     }
@@ -83,7 +91,7 @@ public class GameplayClient {
             String stop = params[1];
             String promotion = params[2];
             ChessMove move = getChessMove(start, stop, promotion);
-            ws.makeMove(authToken, gameID, move);
+            game = ws.makeMove(authToken, gameID, move);
             return "Moved";
         }
         throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION PIECE (if applicable)>");
@@ -118,25 +126,15 @@ public class GameplayClient {
                """;
     }
 
-    private ChessMove getChessMove(String start, String stop, String promotion) throws ResponseException {
-        ChessPiece.PieceType piece = getPromotionPiece(promotion);
-        if (start.length() != 2 || stop.length() != 2) {
-            throw new ResponseException(500, "Invalid Move");
+    private ChessPosition getChessPosition(String pos) throws ResponseException {
+        String rowString = String.valueOf(pos.charAt(0));
+        String colString = String.valueOf(pos.charAt(1));
+        if (!rowMap.containsKey(rowString) || !colMap.containsKey(colString)) {
+            throw new ResponseException(500, "Invalid Spot");
         }
-        String startRow = String.valueOf(start.charAt(0));
-        String startCol = String.valueOf(start.charAt(1));
-        String stopRow = String.valueOf(stop.charAt(0));
-        String stopCol = String.valueOf(stop.charAt(1));
-        if (!rowMap.containsKey(startRow) || !rowMap.containsKey(stopRow) || !colMap.containsKey(startCol) | !colMap.containsKey(stopCol)) {
-            throw new ResponseException(500, "Invalid Move");
-        }
-        int startRowInt = rowMap.get(startRow);
-        int stopRowInt = rowMap.get(stopRow);
-        int startColInt = colMap.get(startCol);
-        int stopColInt = colMap.get(stopCol);
-        ChessPosition startPos = new ChessPosition(startRowInt, startColInt);
-        ChessPosition stopPos = new ChessPosition(stopRowInt, stopColInt);
-        return new ChessMove(startPos, stopPos, piece);
+        int row = rowMap.get(rowString);
+        int col = colMap.get(colString);
+        return new ChessPosition(row,col);
     }
 
     private ChessPiece.PieceType getPromotionPiece(String promotion) {
@@ -148,6 +146,34 @@ public class GameplayClient {
             default -> null;
         };
     }
+
+    private ChessMove getChessMove(String start, String stop, String promotion) throws ResponseException {
+        ChessPiece.PieceType piece = getPromotionPiece(promotion);
+        if (start.length() != 2 || stop.length() != 2) {
+            throw new ResponseException(500, "Invalid Move");
+        }
+        ChessPosition startPos = getChessPosition(start);
+        ChessPosition stopPos = getChessPosition(stop);
+        return new ChessMove(startPos, stopPos, piece);
+    }
+
+    private Collection<String> getBoardSpaces(Collection<ChessMove> moves) {
+        Map<Integer, String> reverseColMap = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : colMap.entrySet()) {
+            reverseColMap.put(entry.getValue(), entry.getKey());
+        }
+
+        Collection<String> positions = new HashSet<>();
+        for (ChessMove  move : moves) {
+            ChessPosition pos = move.getEndPosition();
+            String col = reverseColMap.get(pos.getColumn());
+            String row = String.valueOf(pos.getRow());
+            positions.add(col+row);
+        }
+
+        return positions;
+    }
+
     /// Notifications:
     // 1 - User connects and message displays Player's name and team color
     // 2 - User connect as observer and display's observer's name
@@ -156,12 +182,5 @@ public class GameplayClient {
     // 5 - User resigns. Display user's name
     // 6 - Player is in check. Display user's name
     // 7 - Player is in checkmate. Display user's name
-
-    /// Gameplay functionality:
-    // Help
-    // Redraw Chess Board
-    // Leave
-    // Make Move
-    // Resign
-    // Highlight Legal Moves
+    
 }

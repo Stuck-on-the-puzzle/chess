@@ -4,6 +4,9 @@ import chess.ChessBoard;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class PrintBoard {
 
     ChessBoard board;
@@ -17,26 +20,9 @@ public class PrintBoard {
         this.reversed = reversed;
     }
 
-    void printBoard() {
-        String colLabels = "abcdefgh";
-        String displayCols = reversed ? new StringBuilder(colLabels).reverse().toString() : colLabels;
-        printColumnLabels(displayCols);
-        for (int row = 8; row > 0; row--) {
-            int realRow = reversed ? 9 - row : row;
-            System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
-            for (int col = 1; col < 9; col++) {
-                int realCol = reversed ? 9 - col : col;
-                ChessPosition currentPos = new ChessPosition(9-realRow, realCol);
-                ChessPiece piece = board.getPiece(currentPos);
-                boolean isLightSquare = (realRow + realCol) % 2 == 1;
-                String bgColor = isLightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
-                String symbol = (piece != null) ? getSymbol(piece) : EscapeSequences.EMPTY;
-
-                System.out.print(bgColor + symbol + EscapeSequences.RESET_BG_COLOR);
-            }
-            System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
-        }
-        printColumnLabels(displayCols);
+    public void printBoard() {
+        Collection<String> empty = new ArrayList<>();
+        printHighlightedBoard(empty);
     }
 
     private String getSymbol(ChessPiece piece) {
@@ -72,5 +58,35 @@ public class PrintBoard {
             }
         }
         System.out.println("   " + EscapeSequences.RESET_BG_COLOR);
+    }
+
+    public void printHighlightedBoard(Collection<String> spacesToHighlight) {
+        String colLabels = "abcdefgh";
+        String displayCols = reversed ? new StringBuilder(colLabels).reverse().toString() : colLabels;
+        printColumnLabels(displayCols);
+        for (int row = 8; row > 0; row--) {
+            int realRow = reversed ? 9 - row : row;
+            System.out.print(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
+            for (int col = 1; col < 9; col++) {
+                int realCol = reversed ? 9 - col : col;
+                ChessPosition currentPos = new ChessPosition(9-realRow, realCol);
+                ChessPiece piece = board.getPiece(currentPos);
+                boolean isLightSquare = (realRow + realCol) % 2 == 1;
+                String boardSpace = getBoardSpace(realCol, realRow);
+                boolean highlight = spacesToHighlight.contains(boardSpace);
+                String bgColor = highlight ? EscapeSequences.SET_BG_COLOR_GREEN :
+                        (isLightSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY);
+                String symbol = (piece != null) ? getSymbol(piece) : EscapeSequences.EMPTY;
+
+                System.out.print(bgColor + symbol + EscapeSequences.RESET_BG_COLOR);
+            }
+            System.out.println(EscapeSequences.SET_BG_COLOR_BLACK + " " + realRow + " " + EscapeSequences.RESET_BG_COLOR);
+        }
+        printColumnLabels(displayCols);
+    }
+
+    private String getBoardSpace(int col, int row) {
+        char file = (char) ('a' + col - 1);
+        return file + String.valueOf(row);
     }
 }
