@@ -2,6 +2,7 @@ package Websocket;
 
 import Websocket.ServerMessageObserver;
 import Websocket.WebsocketCommunicator;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.UserGameCommand;
@@ -35,8 +36,8 @@ public class WebSocketFacade extends Endpoint {
         sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
     }
 
-    public void makeMove(String authToken, int gameID) throws IOException {
-        sendCommand(new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID));
+    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
+        sendCommand(new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move));
     }
 
     public void leave(String authToken, int gameID) throws IOException {

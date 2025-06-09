@@ -3,15 +3,15 @@ package ui;
 import Websocket.ServerMessageObserver;
 import Websocket.WebSocketFacade;
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameData;
 import requestresult.JoinRequest;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -25,11 +25,21 @@ public class GameplayClient {
     private String authToken;
     private int gameID;
     private ChessGame game;
+    private Map<String, Integer> rowMap;
+    private Map<String, Integer> colMap;
 
     public GameplayClient(String serverUrl, ServerMessageObserver observer) throws ResponseException {
         ws = new WebSocketFacade(serverUrl, observer);
         this.serverUrl = serverUrl;
         this.observer = observer;
+        Map<String, Integer> rowMap = new HashMap<>();
+        Map<String, Integer> colMap = new HashMap<>();
+        for (int i = 0; i <= 8; i++) {
+            char letter = (char) ('a' + i);
+            rowMap.put(String.valueOf(i+1), i+1);
+            colMap.put(String.valueOf(letter), i+1);
+        }
+
     }
 
     public void setAuth(String authToken, int gameID) {
@@ -68,8 +78,12 @@ public class GameplayClient {
     }
 
     public String makeMove(String... params) throws ResponseException, IOException {
-        if (params.length == 2) {
-            ws.makeMove(authToken, gameID);
+        if (params.length == 3) {
+            String start = params[0];
+            String stop = params[1];
+            String promotion = params[2];
+            ChessMove move = getChessMove(start, stop, promotion);
+            ws.makeMove(authToken, gameID, move);
             return "Moved";
         }
         throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION PIECE (if applicable)>");
@@ -104,6 +118,36 @@ public class GameplayClient {
                """;
     }
 
+    private ChessMove getChessMove(String start, String stop, String promotion) throws ResponseException {
+        ChessPiece.PieceType piece = getPromotionPiece(promotion);
+        if (start.length() != 2 || stop.length() != 2) {
+            throw new ResponseException(500, "Invalid Move");
+        }
+        String startRow = String.valueOf(start.charAt(0));
+        String startCol = String.valueOf(start.charAt(1));
+        String stopRow = String.valueOf(stop.charAt(0));
+        String stopCol = String.valueOf(stop.charAt(1));
+        if (!rowMap.containsKey(startRow) || !rowMap.containsKey(stopRow) || !colMap.containsKey(startCol) | !colMap.containsKey(stopCol)) {
+            throw new ResponseException(500, "Invalid Move");
+        }
+        int startRowInt = rowMap.get(startRow);
+        int stopRowInt = rowMap.get(stopRow);
+        int startColInt = colMap.get(startCol);
+        int stopColInt = colMap.get(stopCol);
+        ChessPosition startPos = new ChessPosition(startRowInt, startColInt);
+        ChessPosition stopPos = new ChessPosition(stopRowInt, stopColInt);
+        return new ChessMove(startPos, stopPos, piece);
+    }
+
+    private ChessPiece.PieceType getPromotionPiece(String promotion) {
+        return switch(promotion.toUpperCase()) {
+            case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+            case "ROOK" -> ChessPiece.PieceType.ROOK;
+            case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+            case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+            default -> null;
+        };
+    }
     /// Notifications:
     // 1 - User connects and message displays Player's name and team color
     // 2 - User connect as observer and display's observer's name
