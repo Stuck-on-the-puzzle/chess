@@ -12,15 +12,13 @@ import java.net.URISyntaxException;
 
 public class WebsocketCommunicator {
 
-    private final WebSocketFacade facade;
     private Session session;
     private final ServerMessageObserver observer;
 
-    public WebsocketCommunicator(String serverURL, WebSocketFacade facade, ServerMessageObserver observer) throws ResponseException {
+    public WebsocketCommunicator(String serverURL, ServerMessageObserver observer) throws ResponseException {
         try {
             serverURL = serverURL.replace("http", "ws");
             URI uri = new URI(serverURL + "/ws");
-            this.facade = facade;
             this.observer = observer;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -34,7 +32,6 @@ public class WebsocketCommunicator {
                         public void onMessage(String message) {
                             ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                             observer.notify(serverMessage);
-                            facade.handleMessage(serverMessage);
                         }
                     });
                 }

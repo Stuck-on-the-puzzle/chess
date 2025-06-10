@@ -7,9 +7,6 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.*;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -19,11 +16,10 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
 
-    private ChessGame game;
     private final WebsocketCommunicator communicator;
 
     public WebSocketFacade(String serverURL, ServerMessageObserver observer) throws ResponseException {
-        this.communicator = new WebsocketCommunicator(serverURL, this, observer);
+        this.communicator = new WebsocketCommunicator(serverURL, observer);
     }
 
     @Override
@@ -41,8 +37,9 @@ public class WebSocketFacade extends Endpoint {
         sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
     }
 
-    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
+    public ChessGame makeMove(String authToken, int gameID, ChessMove move) throws IOException {
         sendCommand(new MakeMove(authToken, gameID, move));
+        return null;
     }
 
     public void leave(String authToken, int gameID) throws IOException {
@@ -53,29 +50,6 @@ public class WebSocketFacade extends Endpoint {
         sendCommand(new Resign(authToken, gameID));
     }
 
-    public void handleMessage(ServerMessage message) {
-        switch (message.getServerMessageType()) {
-            case LOAD_GAME -> {
-                LoadGameMessage load = (LoadGameMessage) message;
-                this.game = load.getGame();
-            }
-
-            case NOTIFICATION -> {
-                Notification note = (Notification) message;
-                System.out.println(note.getMessage());
-            }
-
-            case ERROR -> {
-                ErrorMessage error = (ErrorMessage) message;
-                System.err.println(error.getMessage());
-            }
-        }
-
-    }
-
-    public ChessGame getGame() {
-        return game;
-    }
 
 
 

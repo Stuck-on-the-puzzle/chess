@@ -8,6 +8,8 @@ import service.UserService;
 import requestresult.ClearResult;
 import spark.*;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public class Server {
 
@@ -33,6 +35,7 @@ public class Server {
     JoinHandler joinHandler;
     ListHandler listHandler;
 
+    static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -49,6 +52,8 @@ public class Server {
         joinHandler = new JoinHandler(gameService);
         listHandler = new ListHandler(gameService);
         clearHandler = new ClearHandler(clearService);
+
+        Spark.webSocket("/connect", WebsocketHandler.class);
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", clearHandler); // clear
@@ -74,5 +79,17 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    public static UserDao getUserDao() {
+        return USER_DAO;
+    }
+
+    public static GameDao getGameDao() {
+        return GAME_DAO;
+    }
+
+    public static AuthDao getAuthDao() {
+        return AUTH_DAO;
     }
 }
