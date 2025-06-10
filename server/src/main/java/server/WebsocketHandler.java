@@ -128,17 +128,24 @@ public class WebsocketHandler {
         }
 
         boolean isObserver = true;
-
+        String role = "player";
         if (username.equals(gameData.whiteUsername())) {
             gameDao.updatePlayerColor(gameID, "WHITE", null);
             isObserver = false;
+            role = "WHITE";
         }
         else if (username.equals(gameData.blackUsername())) {
             gameDao.updatePlayerColor(gameID, "BLACK", null);
             isObserver = false;
+            role = "BLACK";
         }
 
-        //ended here
+        sessionGameMap.remove(session);
+        sessionAuthMap.remove(session);
+
+        role = isObserver ? "observer" : role;
+        String message = String.format("%s (%s) left the game", username, role);
+        broadcastToGameExcept(gameID, session, new Notification(message));
     }
 
     private void handleResign(Session session, String username, Resign command) throws IOException {
@@ -147,6 +154,17 @@ public class WebsocketHandler {
 
     public void sendMessage(Session session, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
+    }
+
+    private void broadcastToGameExcept(int gameID, Session excludedSession, ServerMessage message) throws IOException {
+        for (Map.Entry<Session, Integer> entry : sessionGameMap.entrySet()) {
+            Session session = entry.getKey();
+            Integer currentGameID = entry.getValue();
+
+            if (currentGameID == gameID && !session.equals(excludedSession)) {
+                sendMessage(session, message);
+            }
+        }
     }
 
     /// Notifications:
