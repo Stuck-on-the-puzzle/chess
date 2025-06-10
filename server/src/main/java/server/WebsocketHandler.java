@@ -114,8 +114,31 @@ public class WebsocketHandler {
         // Implement
     }
 
-    private void handleLeave(Session session, String username, Leave command) throws IOException {
-        // Implement
+    private void handleLeave(Session session, String username, Leave command) throws IOException, DataAccessException {
+        Integer gameID = sessionGameMap.get(session);
+        if (gameID == null) {
+            sendMessage(session, new ErrorMessage("Game doesn't exist"));
+            return;
+        }
+
+        GameData gameData = gameDao.getGame(gameID);
+        if (gameData == null) {
+            sendMessage(session, new ErrorMessage("Game not found"));
+            return;
+        }
+
+        boolean isObserver = true;
+
+        if (username.equals(gameData.whiteUsername())) {
+            gameDao.updatePlayerColor(gameID, "WHITE", null);
+            isObserver = false;
+        }
+        else if (username.equals(gameData.blackUsername())) {
+            gameDao.updatePlayerColor(gameID, "BLACK", null);
+            isObserver = false;
+        }
+
+        //ended here
     }
 
     private void handleResign(Session session, String username, Resign command) throws IOException {

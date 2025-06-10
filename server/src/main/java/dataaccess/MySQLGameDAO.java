@@ -107,18 +107,6 @@ public class MySQLGameDAO extends BaseDAO implements GameDao {
         }
     }
 
-    // helper method to join a game (avoid duplicate code)
-    private void updatePlayerColor(int gameID, String playerColor, String username) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("UPDATE game SET " + playerColor + "=? WHERE gameID=?")){
-                statement.setString(1,username);
-                statement.setInt(2, gameID);
-                statement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error Joining Game");
-        }
-    }
 
     @Override
     public boolean usedGameID(int gameID) {
@@ -142,6 +130,33 @@ public class MySQLGameDAO extends BaseDAO implements GameDao {
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error clearing game data");
+        }
+    }
+
+    @Override
+    public void updatePlayerColor(Integer gameID, String playerColor, String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("UPDATE game SET " + playerColor + "=? WHERE gameID=?")){
+                statement.setString(1,username);
+                statement.setInt(2, gameID);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error Joining Game");
+        }
+    }
+
+    @Override
+    public void updateGame(Integer gameID, ChessGame game) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("UPDATE game SET chessGame=? WHERE gameID=?")){
+                String chessGameJson = serializer.toJson(game);
+                statement.setString(1,chessGameJson);
+                statement.setInt(2, gameID);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error updating Game");
         }
     }
 }
