@@ -62,11 +62,4 @@ public class WebSocketFacade extends Endpoint {
     // 6 - Player is in check. Display user's name
     // 7 - Player is in checkmate. Display user's name
 
-    /// Gameplay functionality:
-    // Help
-    // Redraw Chess Board
-    // Leave
-    // Make Move
-    // Resign
-    // Highlight Legal Moves
 }

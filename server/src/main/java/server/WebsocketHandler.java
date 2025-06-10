@@ -1,17 +1,19 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.AuthDao;
 import dataaccess.DataAccessException;
 import dataaccess.GameDao;
 import dataaccess.UserDao;
 import exception.ResponseException;
-import org.eclipse.jetty.server.Authentication;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
-import service.UserService;
 import websocket.commands.*;
 import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -74,8 +76,38 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleConnect(Session session, String username, UserGameCommand command) throws IOException {
-        // Implement
+    private void handleConnect(Session session, String username, UserGameCommand command) throws IOException, DataAccessException {
+        int gameID = command.getGameID();
+
+        sessionGameMap.put(session, gameID);
+        sessionAuthMap.put(session, command.getAuthToken());
+
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+        if (game == null) {
+            sendMessage(session, new ErrorMessage("Game not found"));
+            return;
+        }
+
+        sendMessage(session, new LoadGameMessage(game));
+
+        String message;
+        if (username.equals(gameData.whiteUsername())) {
+            message = username + " joined the game as white.";
+        } else if (username.equals(gameData.blackUsername())) {
+            message = username + " joined the game as black.";
+        } else {
+            message = username + " is observing the game.";
+        }
+
+        for (Map.Entry<Session, Integer> entry : sessionGameMap.entrySet()) {
+            Session otherSession = entry.getKey();
+            Integer otherGameID = entry.getValue();
+
+            if (otherGameID == gameID && !otherSession.equals(session)) {
+                sendMessage(otherSession, new Notification(message));
+            }
+        }
     }
 
     private void handleMakeMove(Session session, String username, MakeMove command) throws IOException {
@@ -93,4 +125,13 @@ public class WebsocketHandler {
     public void sendMessage(Session session, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
     }
+
+    /// Notifications:
+    // 1 - User connects and message displays Player's name and team color              THIS IS COMPLETE!
+    // 2 - User connect as observer and display's observer's name                       THIS IS COMPLETED!
+    // 3 - User makes a move. Display player's name and move (board updates)
+    // 4 - User leaves a game. Display user's name
+    // 5 - User resigns. Display user's name
+    // 6 - Player is in check. Display user's name
+    // 7 - Player is in checkmate. Display user's name
 }
