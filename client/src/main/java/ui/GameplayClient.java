@@ -49,6 +49,10 @@ public class GameplayClient {
         ws.connect(authToken, gameID);
     }
 
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
     public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
@@ -91,7 +95,7 @@ public class GameplayClient {
             String stop = params[1];
             String promotion = params[2];
             ChessMove move = getChessMove(start, stop, promotion);
-            game = ws.makeMove(authToken, gameID, move);
+            ws.makeMove(authToken, gameID, move);
             return "Moved";
         }
         throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION PIECE (if applicable)>");
@@ -182,5 +186,5 @@ public class GameplayClient {
     // 5 - User resigns. Display user's name
     // 6 - Player is in check. Display user's name
     // 7 - Player is in checkmate. Display user's name
-    
+
 }

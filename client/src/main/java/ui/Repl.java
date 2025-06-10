@@ -121,6 +121,7 @@ public class Repl implements ServerMessageObserver {
             case LOAD_GAME -> {
                 var loadMessage = (LoadGameMessage) message;
                 var game = loadMessage.getGame();
+                gameplayClient.setGame(game);
                 System.out.println("Game Loaded.");
                 boardPrinter = new PrintBoard(game.getBoard());
                 boardPrinter.printBoard();

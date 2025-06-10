@@ -2,6 +2,7 @@ package Websocket;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -11,13 +12,15 @@ import java.net.URISyntaxException;
 
 public class WebsocketCommunicator {
 
+    private final WebSocketFacade facade;
     private Session session;
     private final ServerMessageObserver observer;
 
-    public WebsocketCommunicator(String serverURL, ServerMessageObserver observer) throws ResponseException {
+    public WebsocketCommunicator(String serverURL, WebSocketFacade facade, ServerMessageObserver observer) throws ResponseException {
         try {
             serverURL = serverURL.replace("http", "ws");
             URI uri = new URI(serverURL + "/ws");
+            this.facade = facade;
             this.observer = observer;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -31,6 +34,7 @@ public class WebsocketCommunicator {
                         public void onMessage(String message) {
                             ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                             observer.notify(serverMessage);
+                            facade.handleMessage(serverMessage);
                         }
                     });
                 }
@@ -44,7 +48,7 @@ public class WebsocketCommunicator {
     public void send(String message) {
         this.session.getAsyncRemote().sendText(message);
     }
-    
+
     /// Notifications:
     // 1 - User connects and message displays Player's name and team color
     // 2 - User connect as observer and display's observer's name

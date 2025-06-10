@@ -32,7 +32,7 @@ public class UserGameCommand {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.move = null;
+        this.move = move;
     }
 
     public enum CommandType {
@@ -52,6 +52,10 @@ public class UserGameCommand {
 
     public Integer getGameID() {
         return gameID;
+    }
+
+    public ChessMove getMove() {
+        return move;
     }
 
     @Override

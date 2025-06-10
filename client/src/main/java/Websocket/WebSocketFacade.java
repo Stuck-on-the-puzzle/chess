@@ -6,7 +6,10 @@ import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -16,10 +19,11 @@ import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
 
+    private ChessGame game;
     private final WebsocketCommunicator communicator;
 
     public WebSocketFacade(String serverURL, ServerMessageObserver observer) throws ResponseException {
-        this.communicator = new WebsocketCommunicator(serverURL, observer);
+        this.communicator = new WebsocketCommunicator(serverURL, this, observer);
     }
 
     @Override
@@ -37,19 +41,41 @@ public class WebSocketFacade extends Endpoint {
         sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
     }
 
-    public ChessGame makeMove(String authToken, int gameID, ChessMove move) throws IOException {
-        sendCommand(new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move));
-        return null;
+    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
+        sendCommand(new MakeMove(authToken, gameID, move));
     }
 
     public void leave(String authToken, int gameID) throws IOException {
-        sendCommand(new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID));
+        sendCommand(new Leave(authToken, gameID));
     }
 
     public void resign(String authToken, int gameID) throws IOException {
-        sendCommand(new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID));
+        sendCommand(new Resign(authToken, gameID));
     }
 
+    public void handleMessage(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case LOAD_GAME -> {
+                LoadGameMessage load = (LoadGameMessage) message;
+                this.game = load.getGame();
+            }
+
+            case NOTIFICATION -> {
+                Notification note = (Notification) message;
+                System.out.println(note.getMessage());
+            }
+
+            case ERROR -> {
+                ErrorMessage error = (ErrorMessage) message;
+                System.err.println(error.getMessage());
+            }
+        }
+
+    }
+
+    public ChessGame getGame() {
+        return game;
+    }
 
 
 
