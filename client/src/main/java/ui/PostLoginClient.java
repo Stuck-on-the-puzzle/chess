@@ -154,7 +154,8 @@ public class PostLoginClient {
     }
 
     private void printBoard(int gameID, String color) throws ResponseException{
-        ChessGame selectedGame = getGame(gameID);
+        GameData game = getGame(gameID);
+        ChessGame selectedGame = game.game();
         PrintBoard board = new PrintBoard(selectedGame.getBoard());
         if (color.equalsIgnoreCase("BLACK")) {
             board.setReversed(true);
@@ -162,7 +163,7 @@ public class PostLoginClient {
         board.printBoard();
     }
 
-    public ChessGame getGame(int gameID) throws ResponseException {
+    public GameData getGame(int gameID) throws ResponseException {
         GameData selectedGame = null;
         for (GameData game: games) {
             if (game.gameID() == gameID) {
@@ -173,7 +174,7 @@ public class PostLoginClient {
         if (selectedGame == null) {
             throw new ResponseException(400, "Game Not Found");
         }
-        return selectedGame.game();
+        return selectedGame;
     }
 
     private int getLocalNumberFromGameID(int gameID) throws ResponseException {

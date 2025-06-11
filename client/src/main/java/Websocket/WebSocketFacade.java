@@ -18,7 +18,6 @@ public class WebSocketFacade extends Endpoint {
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-
     }
 
     // helper function to send commands through websocket

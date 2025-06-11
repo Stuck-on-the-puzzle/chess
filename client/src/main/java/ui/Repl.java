@@ -3,6 +3,7 @@ package ui;
 import Websocket.ServerMessageObserver;
 import chess.ChessGame;
 import exception.ResponseException;
+import model.GameData;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.Notification;
@@ -20,6 +21,7 @@ public class Repl implements ServerMessageObserver {
     private String state = "Logged Out";
     private String username;
     private String authToken;
+    private GameData game;
     private int gameID;
 
     public Repl(String serverUrl) throws ResponseException {
@@ -33,7 +35,6 @@ public class Repl implements ServerMessageObserver {
         String whiteKing = "♔";
         String blackKing = "♚";
         System.out.println("♚ Welcome to Chess. Type help to get started ♚");
-
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
@@ -65,8 +66,9 @@ public class Repl implements ServerMessageObserver {
                             gameID = Integer.parseInt(parts[2]);
                             authToken = parts[5];
                             state = "Playing";
-                            ChessGame game = postLoginClient.getGame(gameID);
-                            gameplayClient.setGame(game);
+                            GameData game = postLoginClient.getGame(gameID);
+                            this.game = game;
+//                            gameplayClient.setGame(game);
                             gameplayClient.setAuth(authToken, gameID);
                             result = "Joined Game!";
                         }
@@ -76,8 +78,8 @@ public class Repl implements ServerMessageObserver {
                         String[] parts = result.split(" ");
                         int numID = Integer.parseInt(parts[2]);
                         state = "Observing";
-                        ChessGame game = postLoginClient.getGame(gameID);
-                        gameplayClient.setGame(game);
+                        GameData game = postLoginClient.getGame(gameID);
+//                        gameplayClient.setGame(game);
                         gameplayClient.setAuth(authToken, gameID);
                         result = "Observing Game:" + numID;
 
