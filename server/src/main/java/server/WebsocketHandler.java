@@ -110,8 +110,7 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleMakeMove(Session session, String username, MakeMove command) throws IOException {
-        // Implement
+    private void handleMakeMove(Session session, String username, MakeMove command) throws IOException, DataAccessException {
     }
 
     private void handleLeave(Session session, String username, Leave command) throws IOException, DataAccessException {
@@ -148,12 +147,35 @@ public class WebsocketHandler {
         broadcastToGameExcept(gameID, session, new Notification(message));
     }
 
-    private void handleResign(Session session, String username, Resign command) throws IOException {
-        // Implement
+    private void handleResign(Session session, String username, Resign command) throws IOException, DataAccessException {
+        String authToken = command.getAuthToken();
+        Integer gameID = sessionGameMap.get(session);
+        if (gameID == null) {
+            sendMessage(session, new ErrorMessage("Game doesn't exist"));
+            return;
+        }
+        authDao.getAuth(authToken);
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+
+        game.setGameOver(true);
+        gameDao.updateGame(gameID, game);
+
+        String message = username + "has resigned. Game Over";
+        broadcastToGame(gameID, new Notification(message));
+
     }
 
     public void sendMessage(Session session, ServerMessage message) throws IOException {
         session.getRemote().sendString(new Gson().toJson(message));
+    }
+
+    private void broadcastToGame(int gameID, ServerMessage message) throws IOException {
+        for (Map.Entry<Session, Integer> entry : sessionGameMap.entrySet()) {
+            if (entry.getValue() == gameID) {
+                sendMessage(entry.getKey(), message);
+            }
+        }
     }
 
     private void broadcastToGameExcept(int gameID, Session excludedSession, ServerMessage message) throws IOException {

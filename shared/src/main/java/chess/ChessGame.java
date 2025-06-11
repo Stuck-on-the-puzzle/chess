@@ -14,6 +14,7 @@ public class ChessGame {
     ///////////////////// include new test cases from github!! ////////////////
     private TeamColor currentTeam;
     private ChessBoard gameBoard;
+    private boolean gameOver = false;
     public ChessGame() {
         currentTeam = TeamColor.WHITE;
         gameBoard = new ChessBoard();
@@ -42,6 +43,14 @@ public class ChessGame {
     public enum TeamColor {
         WHITE,
         BLACK
+    }
+
+    public boolean getGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean isGameOver) {
+        this.gameOver=isGameOver;
     }
 
     /**
