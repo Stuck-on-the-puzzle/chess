@@ -17,6 +17,6 @@ public interface GameDao {
     void joinGame(int gameID, String playerColor, String username) throws DataAccessException;
     boolean usedGameID(int gameID);
     void clear() throws DataAccessException;
-    void updatePlayerColor(Integer gameID, String white, String username) throws DataAccessException;
+    void updatePlayerColor(Integer gameID, String playerColor, String username) throws DataAccessException;
     void updateGame(Integer gameID, ChessGame game) throws DataAccessException;
 }

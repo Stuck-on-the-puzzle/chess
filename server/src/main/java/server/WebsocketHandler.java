@@ -10,6 +10,7 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDao;
 import dataaccess.UserDao;
 import exception.ResponseException;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -50,7 +51,12 @@ public class WebsocketHandler {
             System.out.println("Incoming WebSocket message: " + message);
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
             Server.gameSessions.replace(session, command.getGameID());
-            String username = authDao.getAuth(command.getAuthToken()).username();
+            AuthData auth = authDao.getAuth(command.getAuthToken());
+            if (auth == null) {
+                sendMessage(session, new ErrorMessage("Unauthorized"));
+                return;
+            }
+            String username = auth.username();
 
             switch (command.getCommandType()) {
                 case CONNECT -> handleConnect(session, username, command);
@@ -119,6 +125,11 @@ public class WebsocketHandler {
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
 
+        if (isObserver(gameData, username)) {
+            sendMessage(session, new ErrorMessage("Observer cannot make moves"));
+            return;
+        }
+
         if (game.getGameOver()) {
             sendMessage(session, new ErrorMessage("Game is already over"));
             return;
@@ -178,21 +189,20 @@ public class WebsocketHandler {
         boolean isObserver = true;
         String role = "player";
         if (username.equals(gameData.whiteUsername())) {
-            gameDao.updatePlayerColor(gameID, "WHITE", null);
+            gameDao.updatePlayerColor(gameID, "whiteUsername", null);
             isObserver = false;
             role = "WHITE";
         }
         else if (username.equals(gameData.blackUsername())) {
-            gameDao.updatePlayerColor(gameID, "BLACK", null);
+            gameDao.updatePlayerColor(gameID, "blackUsername", null);
             isObserver = false;
             role = "BLACK";
         }
 
-        Server.gameSessions.remove(session);
-
         role = isObserver ? "observer" : role;
         String message = String.format("%s (%s) left the game", username, role);
         broadcastToGameExcept(gameID, session, new Notification(message));
+        Server.gameSessions.remove(session);
     }
 
     private void handleResign(Session session, String username, Resign command) throws IOException, DataAccessException {
@@ -203,6 +213,16 @@ public class WebsocketHandler {
         }
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
+
+        if (isObserver(gameData, username)) {
+            sendMessage(session, new ErrorMessage("Observer Cannot Resign"));
+            return;
+        }
+
+        if (game.getGameOver()) {
+            sendMessage(session, new ErrorMessage("Game is already over"));
+            return;
+        }
 
         game.setGameOver(true);
         gameDao.updateGame(gameID, game);
@@ -236,5 +256,16 @@ public class WebsocketHandler {
                 sendMessage(session, message);
             }
         }
+    }
+
+    private boolean isObserver(GameData gameData, String username) {
+        boolean observer = true;
+        if (username.equals(gameData.whiteUsername())) {
+            observer = false;
+        }
+        else if (username.equals(gameData.blackUsername())) {
+            observer = false;
+        }
+        return observer;
     }
 }

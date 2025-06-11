@@ -5,6 +5,7 @@ import model.GameData;
 
 import com.google.gson.Gson;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashSet;
 
 public class MySQLGameDAO extends BaseDAO implements GameDao {
@@ -137,12 +138,17 @@ public class MySQLGameDAO extends BaseDAO implements GameDao {
     public void updatePlayerColor(Integer gameID, String playerColor, String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("UPDATE game SET " + playerColor + "=? WHERE gameID=?")){
-                statement.setString(1,username);
+                if (username == null) {
+                    statement.setNull(1, Types.NULL);
+                }
+                else {
+                    statement.setString(1, username);
+                }
                 statement.setInt(2, gameID);
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error Joining Game");
+            throw new DataAccessException("Error Updating Player Color");
         }
     }
 

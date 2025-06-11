@@ -60,11 +60,12 @@ public class Repl implements ServerMessageObserver {
 
                     if (line.toLowerCase().startsWith("join")) {
                         String[] parts = result.split(" ");
-                        gameID = Integer.parseInt(parts[2]);
-                        authToken = parts[5];
-                        state = "Playing";
-                        result = "Joined Game!";
-
+                        if (parts.length == 6) {
+                            gameID = Integer.parseInt(parts[2]);
+                            authToken = parts[5];
+                            state = "Playing";
+                            result = "Joined Game!";
+                        }
                     }
 
                     if (line.toLowerCase().startsWith("observe")) {
@@ -106,6 +107,10 @@ public class Repl implements ServerMessageObserver {
             System.out.print("[LOGGED OUT] >>> ");
         } else if (state.equals("Logged in")) {
             System.out.print("[LOGGED IN as " + username + "] >>> ");
+        } else if (state.equals("Playing")) {
+            System.out.print("[PLAYING CHESS] >>> ");
+        } else if (state.equals("Observing")) {
+            System.out.println("[OBSERVING CHESS] >>> ");
         }
     }
 
