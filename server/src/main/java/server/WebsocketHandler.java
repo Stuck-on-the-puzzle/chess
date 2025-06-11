@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dataaccess.AuthDao;
 import dataaccess.DataAccessException;
 import dataaccess.GameDao;
@@ -24,7 +25,9 @@ import java.util.Map;
 @WebSocket
 public class WebsocketHandler {
 
-    private static final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(UserGameCommand.class, new UserGameCommandDeserializer())
+            .create();
     private final UserDao userDao = Server.getUserDao();
     private final GameDao gameDao = Server.getGameDao();
     private final AuthDao authDao = Server.getAuthDao();
