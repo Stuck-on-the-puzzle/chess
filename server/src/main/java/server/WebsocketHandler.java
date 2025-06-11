@@ -12,6 +12,7 @@ import dataaccess.UserDao;
 import exception.ResponseException;
 import model.AuthData;
 import model.GameData;
+import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.*;

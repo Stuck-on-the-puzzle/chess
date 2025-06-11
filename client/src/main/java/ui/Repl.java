@@ -1,6 +1,7 @@
 package ui;
 
 import Websocket.ServerMessageObserver;
+import chess.ChessGame;
 import exception.ResponseException;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -64,6 +65,9 @@ public class Repl implements ServerMessageObserver {
                             gameID = Integer.parseInt(parts[2]);
                             authToken = parts[5];
                             state = "Playing";
+                            ChessGame game = postLoginClient.getGame(gameID);
+                            gameplayClient.setGame(game);
+                            gameplayClient.setAuth(authToken, gameID);
                             result = "Joined Game!";
                         }
                     }
@@ -72,6 +76,9 @@ public class Repl implements ServerMessageObserver {
                         String[] parts = result.split(" ");
                         int numID = Integer.parseInt(parts[2]);
                         state = "Observing";
+                        ChessGame game = postLoginClient.getGame(gameID);
+                        gameplayClient.setGame(game);
+                        gameplayClient.setAuth(authToken, gameID);
                         result = "Observing Game:" + numID;
 
                     }
@@ -86,11 +93,19 @@ public class Repl implements ServerMessageObserver {
                 else if (state.equals("Playing")) {
                     result = gameplayClient.eval(line);
                     gameplayClient.setAuth(authToken, gameID);
+
+                    if (line.toLowerCase().startsWith("leave")) {
+                        state = "Logged in";
+                    }
                 }
 
                 else if (state.equals("Observing")) {
                     result = gameplayClient.eval(line);
                     gameplayClient.setAuth(authToken, gameID);
+
+                    if (line.toLowerCase().startsWith("leave")) {
+                        state = "Logged in";
+                    }
                 }
 
                 System.out.println(result);

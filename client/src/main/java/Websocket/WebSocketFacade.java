@@ -43,16 +43,4 @@ public class WebSocketFacade extends Endpoint {
         sendCommand(new Resign(authToken, gameID));
     }
 
-
-
-
-    /// Notifications:
-    // 1 - User connects and message displays Player's name and team color
-    // 2 - User connect as observer and display's observer's name
-    // 3 - User makes a move. Display player's name and move (board updates)
-    // 4 - User leaves a game. Display user's name
-    // 5 - User resigns. Display user's name
-    // 6 - Player is in check. Display user's name
-    // 7 - Player is in checkmate. Display user's name
-
 }

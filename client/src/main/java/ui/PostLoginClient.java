@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import model.GameData;
 import requestresult.*;
@@ -153,6 +154,15 @@ public class PostLoginClient {
     }
 
     private void printBoard(int gameID, String color) throws ResponseException{
+        ChessGame selectedGame = getGame(gameID);
+        PrintBoard board = new PrintBoard(selectedGame.getBoard());
+        if (color.equalsIgnoreCase("BLACK")) {
+            board.setReversed(true);
+        }
+        board.printBoard();
+    }
+
+    public ChessGame getGame(int gameID) throws ResponseException {
         GameData selectedGame = null;
         for (GameData game: games) {
             if (game.gameID() == gameID) {
@@ -163,11 +173,7 @@ public class PostLoginClient {
         if (selectedGame == null) {
             throw new ResponseException(400, "Game Not Found");
         }
-        PrintBoard board = new PrintBoard(selectedGame.game().getBoard());
-        if (color.equalsIgnoreCase("BLACK")) {
-            board.setReversed(true);
-        }
-        board.printBoard();
+        return selectedGame.game();
     }
 
     private int getLocalNumberFromGameID(int gameID) throws ResponseException {
