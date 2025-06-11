@@ -235,7 +235,8 @@ public class WebsocketHandler {
 
     public void sendMessage(Session session, ServerMessage message) throws IOException {
         if (session == null || !session.isOpen()) {
-            throw new IllegalStateException("WebSocket Not Open");
+            System.err.println("Tried to send message on closed session");
+            return;
         }
         session.getRemote().sendString(new Gson().toJson(message));
     }

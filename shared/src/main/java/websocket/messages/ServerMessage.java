@@ -9,6 +9,7 @@ import java.util.Objects;
  * methods.
  */
 public class ServerMessage {
+
     ServerMessageType serverMessageType;
 
     public enum ServerMessageType {

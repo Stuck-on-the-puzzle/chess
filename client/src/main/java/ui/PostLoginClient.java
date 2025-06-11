@@ -96,7 +96,6 @@ public class PostLoginClient {
             int gameID = getGameIDNumberFromLocal(localNumber);
             JoinRequest joinRequest = new JoinRequest(playerColor, gameID);
             server.joinGame(joinRequest, authToken);
-            printBoard(gameID, playerColor);
             return String.format("Joined Game! %d with authToken %s", gameID, authToken);
         }
         throw new ResponseException(400, "Expected: join <PIECE_COLOR> <ID>");

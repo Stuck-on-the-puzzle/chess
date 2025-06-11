@@ -7,15 +7,9 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
-import model.GameData;
-import requestresult.JoinRequest;
 
 import java.io.IOException;
 import java.util.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import static javax.swing.UIManager.get;
 
 public class GameplayClient {
 
@@ -35,7 +29,7 @@ public class GameplayClient {
         this.observer = observer;
         this.rowMap = new HashMap<>();
         this.colMap = new HashMap<>();
-        for (int i = 0; i <= 8; i++) {
+        for (int i = 0; i < 8; i++) {
             char letter = (char) ('a' + i);
             rowMap.put(String.valueOf(i+1), i+1);
             colMap.put(String.valueOf(letter), i+1);
@@ -81,7 +75,7 @@ public class GameplayClient {
     public String highlightLegalMoves(String... params) throws ResponseException {
         if (params.length == 1) {
             ChessPosition pos = getChessPosition(params[0]);
-            Collection<String> spacesToHighlight = getBoardSpaces(game.validMoves(pos));
+            Collection<String> spacesToHighlight = getBoardSpaces(pos, game.validMoves(pos));
             printBoard = new PrintBoard(game.getBoard());
             printBoard.printHighlightedBoard(spacesToHighlight);
             return "Highlighted Moves";
@@ -90,10 +84,16 @@ public class GameplayClient {
     }
 
     public String makeMove(String... params) throws ResponseException, IOException {
-        if (params.length == 3) {
+        if (params.length >= 2) {
             String start = params[0];
             String stop = params[1];
-            String promotion = params[2];
+            String promotion;
+            if (params.length > 2) {
+                promotion = params[2];
+            }
+            else {
+                promotion = null;
+            }
             ChessMove move = getChessMove(start, stop, promotion);
             ws.makeMove(authToken, gameID, move);
             return "Moved";
@@ -131,8 +131,8 @@ public class GameplayClient {
     }
 
     private ChessPosition getChessPosition(String pos) throws ResponseException {
-        String rowString = String.valueOf(pos.charAt(0));
-        String colString = String.valueOf(pos.charAt(1));
+        String colString = String.valueOf(pos.charAt(0));
+        String rowString = String.valueOf(pos.charAt(1));
         if (!rowMap.containsKey(rowString) || !colMap.containsKey(colString)) {
             throw new ResponseException(500, "Invalid Spot");
         }
@@ -142,6 +142,9 @@ public class GameplayClient {
     }
 
     private ChessPiece.PieceType getPromotionPiece(String promotion) {
+        if (promotion == null) {
+            return null;
+        }
         return switch(promotion.toUpperCase()) {
             case "QUEEN" -> ChessPiece.PieceType.QUEEN;
             case "ROOK" -> ChessPiece.PieceType.ROOK;
@@ -161,30 +164,21 @@ public class GameplayClient {
         return new ChessMove(startPos, stopPos, piece);
     }
 
-    private Collection<String> getBoardSpaces(Collection<ChessMove> moves) {
+    private Collection<String> getBoardSpaces(ChessPosition currPos, Collection<ChessMove> moves) {
         Map<Integer, String> reverseColMap = new HashMap<>();
         for (Map.Entry<String, Integer> entry : colMap.entrySet()) {
             reverseColMap.put(entry.getValue(), entry.getKey());
         }
-
         Collection<String> positions = new HashSet<>();
         for (ChessMove  move : moves) {
             ChessPosition pos = move.getEndPosition();
             String col = reverseColMap.get(pos.getColumn());
             String row = String.valueOf(pos.getRow());
-            positions.add(col+row);
+            positions.add(col + row);
         }
-
+        String currCol = reverseColMap.get(currPos.getColumn());
+        String currRow = String.valueOf(currPos.getRow());
+        positions.add(currCol + currRow);
         return positions;
     }
-
-    /// Notifications:
-    // 1 - User connects and message displays Player's name and team color
-    // 2 - User connect as observer and display's observer's name
-    // 3 - User makes a move. Display player's name and move (board updates)
-    // 4 - User leaves a game. Display user's name
-    // 5 - User resigns. Display user's name
-    // 6 - Player is in check. Display user's name
-    // 7 - Player is in checkmate. Display user's name
-
 }
