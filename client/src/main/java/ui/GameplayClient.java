@@ -7,6 +7,7 @@ import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
+import org.glassfish.grizzly.http.server.Response;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,6 +21,7 @@ public class GameplayClient {
     private String authToken;
     private int gameID;
     private ChessGame game;
+    private ChessGame.TeamColor playerColor;
     private final Map<String, Integer> rowMap;
     private final Map<String, Integer> colMap;
 
@@ -37,14 +39,21 @@ public class GameplayClient {
 
     }
 
-    public void setAuth(String authToken, int gameID) throws IOException {
+    public void setAuth(String authToken, int gameID) {
         this.authToken =authToken;
         this.gameID = gameID;
+    }
+
+    public void connectToWs(String authToken, int gameID) throws IOException {
         ws.connect(authToken, gameID);
     }
 
     public void setGame(ChessGame game) {
         this.game = game;
+    }
+
+    public void setColor(ChessGame.TeamColor color) {
+        this.playerColor = color;
     }
 
     public String eval(String input) {
@@ -68,6 +77,7 @@ public class GameplayClient {
 
     public String redrawBoard() throws ResponseException {
         printBoard = new PrintBoard(game.getBoard());
+        printBoard.setReversed(this.playerColor == ChessGame.TeamColor.BLACK);
         printBoard.printBoard();
         return "Current Board";
     }
@@ -77,6 +87,7 @@ public class GameplayClient {
             ChessPosition pos = getChessPosition(params[0]);
             Collection<String> spacesToHighlight = getBoardSpaces(pos, game.validMoves(pos));
             printBoard = new PrintBoard(game.getBoard());
+            printBoard.setReversed(this.playerColor == ChessGame.TeamColor.BLACK);
             printBoard.printHighlightedBoard(spacesToHighlight);
             return "Highlighted Moves";
         }
@@ -96,7 +107,7 @@ public class GameplayClient {
             }
             ChessMove move = getChessMove(start, stop, promotion);
             ws.makeMove(authToken, gameID, move);
-            return "Moved";
+            return "Moving...";
         }
         throw new ResponseException(400, "Expected: <FROM> <TO> <PROMOTION PIECE (if applicable)>");
     }
@@ -104,7 +115,7 @@ public class GameplayClient {
     public String leave() throws ResponseException {
         try {
             ws.leave(authToken, gameID);
-            return "Left game but make sure this is websocket";
+            return "Left game";
         } catch (IOException e) {
             throw new ResponseException(500, "Failed to leave game");
         }
@@ -113,7 +124,7 @@ public class GameplayClient {
     public String resign() throws ResponseException {
         try {
             ws.resign(authToken, gameID);
-            return "Resigned from game but make sure this is websocket";
+            return "Resigned from game";
         } catch (IOException e) {
             throw new ResponseException(500, "Failed to resign");
         }

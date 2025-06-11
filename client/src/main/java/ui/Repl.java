@@ -48,7 +48,7 @@ public class Repl implements ServerMessageObserver {
 
                     if (result.startsWith("Logged in as")) {
                         String[] parts = result.split(" ");
-                        username = parts[3];
+                        this.username = parts[3];
                         authToken = parts[6];
                         postLoginClient.setAuthToken(authToken);
                         state = "Logged in";
@@ -66,10 +66,9 @@ public class Repl implements ServerMessageObserver {
                             gameID = Integer.parseInt(parts[2]);
                             authToken = parts[5];
                             state = "Playing";
-                            GameData game = postLoginClient.getGame(gameID);
-                            this.game = game;
-//                            gameplayClient.setGame(game);
+                            this.game = postLoginClient.getGame(gameID);
                             gameplayClient.setAuth(authToken, gameID);
+                            gameplayClient.connectToWs(authToken, gameID);
                             result = "Joined Game!";
                         }
                     }
@@ -79,8 +78,8 @@ public class Repl implements ServerMessageObserver {
                         int numID = Integer.parseInt(parts[2]);
                         state = "Observing";
                         GameData game = postLoginClient.getGame(gameID);
-//                        gameplayClient.setGame(game);
                         gameplayClient.setAuth(authToken, gameID);
+                        gameplayClient.connectToWs(authToken, gameID);
                         result = "Observing Game:" + numID;
 
                     }
@@ -93,11 +92,25 @@ public class Repl implements ServerMessageObserver {
                 }
 
                 else if (state.equals("Playing")) {
-                    result = gameplayClient.eval(line);
-                    gameplayClient.setAuth(authToken, gameID);
+                    if (line.toLowerCase().startsWith("resign")) {
+                        System.out.print("Are you sure you want to resign? (y/n): ");
+                        String response = scanner.nextLine().trim().toLowerCase();
+                        if (response.equals("y") || response.equals("yes")) {
+                            System.out.println("You have resigned. Game Over");
+                            result = gameplayClient.resign();
+                        }
+                        else {
+                            result = "Resign cancelled";
+                        }
+                    }
 
-                    if (line.toLowerCase().startsWith("leave")) {
-                        state = "Logged in";
+                    else {
+                        result = gameplayClient.eval(line);
+                        gameplayClient.setAuth(authToken, gameID);
+
+                        if (line.toLowerCase().startsWith("leave")) {
+                            state = "Logged in";
+                        }
                     }
                 }
 
@@ -127,7 +140,7 @@ public class Repl implements ServerMessageObserver {
         } else if (state.equals("Playing")) {
             System.out.print("[PLAYING CHESS] >>> ");
         } else if (state.equals("Observing")) {
-            System.out.println("[OBSERVING CHESS] >>> ");
+            System.out.print("[OBSERVING CHESS] >>> ");
         }
     }
 
@@ -142,10 +155,14 @@ public class Repl implements ServerMessageObserver {
 
             case LOAD_GAME -> {
                 var loadMessage = (LoadGameMessage) message;
-                var game = loadMessage.getGame();
-                gameplayClient.setGame(game);
+                GameData gameData = loadMessage.getGame();
+                this.game = gameData;
+                gameplayClient.setGame(gameData.game());
                 System.out.println("Game Loaded.");
-                boardPrinter = new PrintBoard(game.getBoard());
+                ChessGame.TeamColor color = getColor();
+                gameplayClient.setColor(color);
+                boardPrinter = new PrintBoard(gameData.game().getBoard());
+                boardPrinter.setReversed(color == ChessGame.TeamColor.BLACK);
                 boardPrinter.printBoard();
                 // maybe print info such as whose turn it is?
                 printPrompt();
@@ -162,5 +179,16 @@ public class Repl implements ServerMessageObserver {
                 printPrompt();
             }
         }
+    }
+
+    private ChessGame.TeamColor getColor() {
+        ChessGame.TeamColor color;
+        if (this.username.equals(this.game.blackUsername())) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+        else {
+            color = ChessGame.TeamColor.WHITE;
+        }
+        return color;
     }
 }

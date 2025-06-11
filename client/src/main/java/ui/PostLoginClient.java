@@ -112,7 +112,7 @@ public class PostLoginClient {
             }
             int gameID = getGameIDNumberFromLocal(localNumber);
             printBoard(gameID, "WHITE");
-            return String.format("Observing Game! %d", gameID);
+            return String.format("Observing Game! %d", localNumber);
         }
         throw new ResponseException(400, "Expected: observe <ID>");
 

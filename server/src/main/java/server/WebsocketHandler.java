@@ -95,7 +95,7 @@ public class WebsocketHandler {
         }
 
         Server.gameSessions.put(session, gameID);
-        sendMessage(session, new LoadGameMessage(game));
+        sendMessage(session, new LoadGameMessage(gameData));
 
         String message;
         if (username.equals(gameData.whiteUsername())) {
@@ -154,8 +154,10 @@ public class WebsocketHandler {
         }
 
         gameDao.updateGame(gameID, game);
+        GameData updatedGame = new GameData(gameID, gameData.whiteUsername(),
+                gameData.blackUsername(), gameData.gameName(), gameData.game());
 
-        broadcastToGame(gameID, new LoadGameMessage(game));
+        broadcastToGame(gameID, new LoadGameMessage(updatedGame));
 
         String moveMessage = String.format("%s moved from %s to %s",
                 username, move.getStartPosition(), move.getEndPosition());
@@ -229,7 +231,7 @@ public class WebsocketHandler {
         gameDao.updateGame(gameID, game);
 
         String message = username + " has resigned. Game Over";
-        broadcastToGame(gameID, new Notification(message));
+        broadcastToGameExcept(gameID, session, new Notification(message));
 
     }
 
