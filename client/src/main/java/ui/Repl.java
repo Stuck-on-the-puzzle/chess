@@ -96,8 +96,8 @@ public class Repl implements ServerMessageObserver {
                         System.out.print("Are you sure you want to resign? (y/n): ");
                         String response = scanner.nextLine().trim().toLowerCase();
                         if (response.equals("y") || response.equals("yes")) {
-                            System.out.println("You have resigned. Game Over");
                             result = gameplayClient.resign();
+
                         }
                         else {
                             result = "Resign cancelled";

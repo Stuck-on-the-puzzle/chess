@@ -124,7 +124,7 @@ public class GameplayClient {
     public String resign() throws ResponseException {
         try {
             ws.resign(authToken, gameID);
-            return "Resigned from game";
+            return "";
         } catch (IOException e) {
             throw new ResponseException(500, "Failed to resign");
         }
