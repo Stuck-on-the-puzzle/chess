@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.HashSet;
@@ -78,5 +79,38 @@ public class MemoryGameDAO implements GameDao {
     @Override
     public void clear() {
         gameDatadb.clear();
+    }
+
+    @Override
+    public void updatePlayerColor(Integer gameID, String playerColor, String username) throws DataAccessException {
+        for (GameData game : gameDatadb) {
+            if (game.gameID() == gameID) {
+                gameDatadb.remove(game);
+                GameData updatedGame;
+                if ("WHITE".equalsIgnoreCase(playerColor)) {
+                    updatedGame = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+                } else if ("BLACK".equalsIgnoreCase(playerColor)) {
+                    updatedGame = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+                } else {
+                    throw new DataAccessException("Invalid color");
+                }
+                gameDatadb.add(updatedGame);
+                return;
+            }
+        }
+        throw new DataAccessException("Game ID not found");
+    }
+
+    @Override
+    public void updateGame(Integer gameID, ChessGame chessGame) throws DataAccessException {
+        for (GameData game : gameDatadb) {
+            if (game.gameID() == gameID) {
+                gameDatadb.remove(game);
+                GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
+                gameDatadb.add(updatedGame);
+                return;
+            }
+        }
+        throw new DataAccessException("Game ID not found");
     }
 }

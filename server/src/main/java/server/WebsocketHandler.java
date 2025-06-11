@@ -1,6 +1,8 @@
 package server;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.AuthDao;
 import dataaccess.DataAccessException;
@@ -18,7 +20,6 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WebsocketHandler {
@@ -28,46 +29,40 @@ public class WebsocketHandler {
     private final GameDao gameDao = Server.getGameDao();
     private final AuthDao authDao = Server.getAuthDao();
 
-    // Keep track of active sessions and user/game mapping
-    private static final Map<Session, Integer> sessionGameMap = new ConcurrentHashMap<>();
-    private static final Map<Session, String> sessionAuthMap = new ConcurrentHashMap<>();
-
     @OnWebSocketConnect
     public void onConnect(Session session) {
         System.out.println("New WebSocket connection: " + session.getRemoteAddress());
-        Server.gameSessions.put((spark.Session) session, 0);
+        Server.gameSessions.put(session, 0);
+    }
+
+    @OnWebSocketClose
+    public void onClose(Session session, int statusCode, String reason) {
+        System.out.println("WebSocket connection closed: " + session.getRemoteAddress());
+        Server.gameSessions.remove(session);
     }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, ResponseException, DataAccessException {
         try {
+            System.out.println("Incoming WebSocket message: " + message);
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
-            String username = String.valueOf(this.userDao.getUser(command.getAuthToken()));
-
-            sessionGameMap.put(session, command.getGameID());
-            sessionAuthMap.put(session, command.getAuthToken());
+            Server.gameSessions.replace(session, command.getGameID());
+            String username = authDao.getAuth(command.getAuthToken()).username();
 
             switch (command.getCommandType()) {
-                case CONNECT -> handleConnect(session, username, (Connect) command);
+                case CONNECT -> handleConnect(session, username, command);
                 case MAKE_MOVE -> handleMakeMove(session, username, (MakeMove) command);
                 case LEAVE -> handleLeave(session, username, (Leave) command);
                 case RESIGN -> handleResign(session, username, (Resign) command);
                 default -> sendMessage(session, new ErrorMessage("Unknown command type"));
             }
         } catch (Exception e) {
-            sendMessage((Session) session.getRemote(), new ErrorMessage(e.getMessage()));
+            sendMessage(session, new ErrorMessage(e.getMessage()));
         }
     }
 
-    @OnWebSocketClose
-    public void onClose(Session session, int statusCode, String reason) {
-        System.out.println("WebSocket connection closed: " + session.getRemoteAddress());
-        sessionGameMap.remove(session);
-        sessionAuthMap.remove(session);
-    }
-
     @OnWebSocketError
-    public void onError(Session session, Error error) throws IOException {
+    public void onError(Session session, Throwable error) throws IOException {
         System.err.println("WebSocket error for session " + session + ": " + error.getMessage());
         try {
             sendMessage(session, new ErrorMessage("WebSocket error: " + error.getMessage()));
@@ -78,17 +73,18 @@ public class WebsocketHandler {
 
     private void handleConnect(Session session, String username, UserGameCommand command) throws IOException, DataAccessException {
         int gameID = command.getGameID();
-
-        sessionGameMap.put(session, gameID);
-        sessionAuthMap.put(session, command.getAuthToken());
-
         GameData gameData = gameDao.getGame(gameID);
+        if (gameData == null) {
+            sendMessage(session, new ErrorMessage("Game not found"));
+            return;
+        }
         ChessGame game = gameData.game();
         if (game == null) {
             sendMessage(session, new ErrorMessage("Game not found"));
             return;
         }
 
+        Server.gameSessions.put(session, gameID);
         sendMessage(session, new LoadGameMessage(game));
 
         String message;
@@ -100,7 +96,7 @@ public class WebsocketHandler {
             message = username + " is observing the game.";
         }
 
-        for (Map.Entry<Session, Integer> entry : sessionGameMap.entrySet()) {
+        for (Map.Entry<Session, Integer> entry : Server.gameSessions.entrySet()) {
             Session otherSession = entry.getKey();
             Integer otherGameID = entry.getValue();
 
@@ -110,11 +106,61 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleMakeMove(Session session, String username, MakeMove command) throws IOException, DataAccessException {
+    private void handleMakeMove(Session session, String username, MakeMove command) throws IOException, DataAccessException, InvalidMoveException {
+        Integer gameID = Server.gameSessions.get(session);
+        ChessMove move = command.getMove();
+        if (gameID == null) {
+            sendMessage(session, new ErrorMessage("Game doesn't exist"));
+            return;
+        }
+        GameData gameData = gameDao.getGame(gameID);
+        ChessGame game = gameData.game();
+
+        if (game.getGameOver()) {
+            sendMessage(session, new ErrorMessage("Game is already over"));
+            return;
+        }
+
+        ChessGame.TeamColor currentTeam = game.getTeamTurn();
+        boolean isWhite = username.equals(gameData.whiteUsername());
+        boolean isBlack = username.equals(gameData.blackUsername());
+
+        if ((currentTeam == ChessGame.TeamColor.WHITE && !isWhite) ||
+                (currentTeam == ChessGame.TeamColor.BLACK && !isBlack)) {
+            sendMessage(session, new ErrorMessage("Error: Not your turn"));
+            return;
+        }
+
+        try {
+            game.makeMove(move);
+        } catch (Exception e) {
+            sendMessage(session, new ErrorMessage("Illegal move"));
+            return;
+        }
+
+        gameDao.updateGame(gameID, game);
+
+        broadcastToGame(gameID, new LoadGameMessage(game));
+
+        String moveMessage = String.format("%s moved from %s to %s",
+                username, move.getStartPosition(), move.getEndPosition());
+        broadcastToGameExcept(gameID, session, new Notification(moveMessage));
+
+        if (game.isInCheckmate(game.getTeamTurn())) {
+            game.setGameOver(true);
+            gameDao.updateGame(gameID, game);
+            broadcastToGame(gameID, new Notification("Checkmate! " + username + " wins."));
+        } else if (game.isInStalemate(game.getTeamTurn())) {
+            game.setGameOver(true);
+            gameDao.updateGame(gameID, game);
+            broadcastToGame(gameID, new Notification("Stalemate! The game is a draw."));
+        } else if (game.isInCheck(game.getTeamTurn())) {
+            broadcastToGame(gameID, new Notification("Check! " + game.getTeamTurn() + " is in check."));
+        }
     }
 
     private void handleLeave(Session session, String username, Leave command) throws IOException, DataAccessException {
-        Integer gameID = sessionGameMap.get(session);
+        Integer gameID = Server.gameSessions.get(session);
         if (gameID == null) {
             sendMessage(session, new ErrorMessage("Game doesn't exist"));
             return;
@@ -139,8 +185,7 @@ public class WebsocketHandler {
             role = "BLACK";
         }
 
-        sessionGameMap.remove(session);
-        sessionAuthMap.remove(session);
+        Server.gameSessions.remove(session);
 
         role = isObserver ? "observer" : role;
         String message = String.format("%s (%s) left the game", username, role);
@@ -148,30 +193,31 @@ public class WebsocketHandler {
     }
 
     private void handleResign(Session session, String username, Resign command) throws IOException, DataAccessException {
-        String authToken = command.getAuthToken();
-        Integer gameID = sessionGameMap.get(session);
+        Integer gameID = Server.gameSessions.get(session);
         if (gameID == null) {
             sendMessage(session, new ErrorMessage("Game doesn't exist"));
             return;
         }
-        authDao.getAuth(authToken);
         GameData gameData = gameDao.getGame(gameID);
         ChessGame game = gameData.game();
 
         game.setGameOver(true);
         gameDao.updateGame(gameID, game);
 
-        String message = username + "has resigned. Game Over";
+        String message = username + " has resigned. Game Over";
         broadcastToGame(gameID, new Notification(message));
 
     }
 
     public void sendMessage(Session session, ServerMessage message) throws IOException {
+        if (session == null || !session.isOpen()) {
+            throw new IllegalStateException("WebSocket Not Open");
+        }
         session.getRemote().sendString(new Gson().toJson(message));
     }
 
     private void broadcastToGame(int gameID, ServerMessage message) throws IOException {
-        for (Map.Entry<Session, Integer> entry : sessionGameMap.entrySet()) {
+        for (Map.Entry<Session, Integer> entry : Server.gameSessions.entrySet()) {
             if (entry.getValue() == gameID) {
                 sendMessage(entry.getKey(), message);
             }
@@ -179,7 +225,7 @@ public class WebsocketHandler {
     }
 
     private void broadcastToGameExcept(int gameID, Session excludedSession, ServerMessage message) throws IOException {
-        for (Map.Entry<Session, Integer> entry : sessionGameMap.entrySet()) {
+        for (Map.Entry<Session, Integer> entry : Server.gameSessions.entrySet()) {
             Session session = entry.getKey();
             Integer currentGameID = entry.getValue();
 
@@ -188,13 +234,4 @@ public class WebsocketHandler {
             }
         }
     }
-
-    /// Notifications:
-    // 1 - User connects and message displays Player's name and team color              THIS IS COMPLETE!
-    // 2 - User connect as observer and display's observer's name                       THIS IS COMPLETED!
-    // 3 - User makes a move. Display player's name and move (board updates)
-    // 4 - User leaves a game. Display user's name
-    // 5 - User resigns. Display user's name
-    // 6 - Player is in check. Display user's name
-    // 7 - Player is in checkmate. Display user's name
 }

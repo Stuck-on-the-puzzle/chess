@@ -6,10 +6,10 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 import requestresult.ClearResult;
+import org.eclipse.jetty.websocket.api.Session;
 import spark.*;
 
 import java.util.concurrent.ConcurrentHashMap;
-
 
 public class Server {
 
@@ -36,6 +36,7 @@ public class Server {
     ListHandler listHandler;
 
     static ConcurrentHashMap<Session, Integer> gameSessions = new ConcurrentHashMap<>();
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -53,7 +54,7 @@ public class Server {
         listHandler = new ListHandler(gameService);
         clearHandler = new ClearHandler(clearService);
 
-        Spark.webSocket("/connect", WebsocketHandler.class);
+        Spark.webSocket("/ws", WebsocketHandler.class);
 
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", clearHandler); // clear

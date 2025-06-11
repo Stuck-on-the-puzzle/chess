@@ -19,6 +19,7 @@ public class WebsocketCommunicator {
         try {
             serverURL = serverURL.replace("http", "ws");
             URI uri = new URI(serverURL + "/ws");
+            System.out.println(uri);
             this.observer = observer;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();

@@ -1,18 +1,12 @@
 package Websocket;
 
-import Websocket.ServerMessageObserver;
-import Websocket.WebsocketCommunicator;
-import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.*;
-import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class WebSocketFacade extends Endpoint {
 
@@ -37,9 +31,8 @@ public class WebSocketFacade extends Endpoint {
         sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
     }
 
-    public ChessGame makeMove(String authToken, int gameID, ChessMove move) throws IOException {
+    public void makeMove(String authToken, int gameID, ChessMove move) throws IOException {
         sendCommand(new MakeMove(authToken, gameID, move));
-        return null;
     }
 
     public void leave(String authToken, int gameID) throws IOException {
