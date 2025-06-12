@@ -1,11 +1,8 @@
 package ui;
 
+import chess.*;
 import websocket.ServerMessageObserver;
 import websocket.WebSocketFacade;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import exception.ResponseException;
 
 import java.io.IOException;
@@ -85,6 +82,9 @@ public class GameplayClient {
         if (params.length == 1) {
             ChessPosition pos = getChessPosition(params[0]);
             Collection<String> spacesToHighlight = getBoardSpaces(pos, game.validMoves(pos));
+            if (spacesToHighlight == null) {
+                return "No piece in selected spot";
+            }
             printBoard = new PrintBoard(game.getBoard());
             printBoard.setReversed(this.playerColor == ChessGame.TeamColor.BLACK);
             printBoard.printHighlightedBoard(spacesToHighlight);
@@ -175,6 +175,10 @@ public class GameplayClient {
     }
 
     private Collection<String> getBoardSpaces(ChessPosition currPos, Collection<ChessMove> moves) {
+        ChessBoard board = game.getBoard();
+        if (board.getPiece(currPos) == null) {
+            return null;
+        }
         Map<Integer, String> reverseColMap = new HashMap<>();
         for (Map.Entry<String, Integer> entry : colMap.entrySet()) {
             reverseColMap.put(entry.getValue(), entry.getKey());

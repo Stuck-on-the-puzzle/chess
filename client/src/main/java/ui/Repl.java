@@ -145,7 +145,7 @@ public class Repl implements ServerMessageObserver {
     }
 
     @Override
-    public void notify(ServerMessage message) {
+    public void notify(ServerMessage message) throws ResponseException {
         switch (message.getServerMessageType()) {
             case NOTIFICATION -> {
                 var note = (Notification) message;

@@ -173,13 +173,13 @@ public class WebsocketHandler {
         if (game.isInCheckmate(game.getTeamTurn())) {
             game.setGameOver(true);
             gameDao.updateGame(gameID, game);
-            broadcastToGame(gameID, new Notification("Checkmate! " + username + " wins."));
+            broadcastToGame(gameID, new Notification("Checkmate! " + username + " (" + game.getTeamTurn() + ")" + " wins."));
         } else if (game.isInStalemate(game.getTeamTurn())) {
             game.setGameOver(true);
             gameDao.updateGame(gameID, game);
             broadcastToGame(gameID, new Notification("Stalemate! The game is a draw."));
         } else if (game.isInCheck(game.getTeamTurn())) {
-            broadcastToGame(gameID, new Notification("Check! " + game.getTeamTurn() + " is in check."));
+            broadcastToGame(gameID, new Notification("Check! " + username + " (" + game.getTeamTurn() + ")" + " is in check."));
         }
     }
 

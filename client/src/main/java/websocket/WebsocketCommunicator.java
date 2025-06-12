@@ -34,7 +34,11 @@ public class WebsocketCommunicator {
                         @Override
                         public void onMessage(String message) {
                             ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-                            observer.notify(serverMessage);
+                            try {
+                                observer.notify(serverMessage);
+                            } catch (ResponseException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     });
                 }
