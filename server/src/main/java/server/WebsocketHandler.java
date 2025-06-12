@@ -1,8 +1,6 @@
 package server;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.InvalidMoveException;
+import chess.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dataaccess.AuthDao;
@@ -164,8 +162,12 @@ public class WebsocketHandler {
         }
         broadcastToGame(gameID, new LoadGameMessage(updatedGame));
 
-        String moveMessage = String.format("%s moved from %s to %s",
-                username, move.getStartPosition(), move.getEndPosition());
+        ChessPiece movedPiece = game.getBoard().getPiece(move.getEndPosition());
+        String pieceName = getPieceName(movedPiece);
+        String from = toBoardNotation(move.getStartPosition());
+        String to = toBoardNotation(move.getEndPosition());
+
+        String moveMessage = String.format("%s moved %s from %s to %s", username, pieceName, from, to);
         broadcastToGameExcept(gameID, session, new Notification(moveMessage));
 
         if (game.isInCheckmate(game.getTeamTurn())) {
@@ -276,5 +278,25 @@ public class WebsocketHandler {
             observer = false;
         }
         return observer;
+    }
+
+    private String toBoardNotation(ChessPosition pos) {
+        char file = (char) ('a' + pos.getColumn() - 1);
+        String rank = String.valueOf(pos.getRow());
+        return file + rank;
+    }
+
+    private String getPieceName(ChessPiece piece) {
+        if (piece == null) return "Unknown Piece";
+        String color = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? "White" : "Black";
+        String type = switch (piece.getPieceType()) {
+            case KING -> "King";
+            case QUEEN -> "Queen";
+            case ROOK -> "Rook";
+            case BISHOP -> "Bishop";
+            case KNIGHT -> "Knight";
+            case PAWN -> "Pawn";
+        };
+        return color + " " + type;
     }
 }

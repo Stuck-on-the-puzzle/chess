@@ -111,8 +111,7 @@ public class PostLoginClient {
                 throw new ResponseException(400, "Invalid Game Number");
             }
             int gameID = getGameIDNumberFromLocal(localNumber);
-            printBoard(gameID, "WHITE");
-            return String.format("Observing Game! %d", localNumber);
+            return String.format("Observing Game! %d %s %d", gameID, authToken, localNumber);
         }
         throw new ResponseException(400, "Expected: observe <ID>");
 

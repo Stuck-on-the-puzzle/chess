@@ -75,12 +75,14 @@ public class Repl implements ServerMessageObserver {
 
                     if (line.toLowerCase().startsWith("observe")) {
                         String[] parts = result.split(" ");
-                        int numID = Integer.parseInt(parts[2]);
+                        gameID = Integer.parseInt(parts[2]);
+                        authToken = parts[3];
+                        int numID = Integer.parseInt(parts[4]);
                         state = "Observing";
                         GameData game = postLoginClient.getGame(gameID);
                         gameplayClient.setAuth(authToken, gameID);
                         gameplayClient.connectToWs(authToken, gameID);
-                        result = "Observing Game:" + numID;
+                        result = "Observing Game: " + numID;
 
                     }
 
@@ -91,7 +93,7 @@ public class Repl implements ServerMessageObserver {
                     }
                 }
 
-                else if (state.equals("Playing")) {
+                else if (state.equals("Playing") || state.equals("Observing")) {
                     if (line.toLowerCase().startsWith("resign")) {
                         System.out.print("Are you sure you want to resign? (y/n): ");
                         String response = scanner.nextLine().trim().toLowerCase();
@@ -111,15 +113,6 @@ public class Repl implements ServerMessageObserver {
                         if (line.toLowerCase().startsWith("leave")) {
                             state = "Logged in";
                         }
-                    }
-                }
-
-                else if (state.equals("Observing")) {
-                    result = gameplayClient.eval(line);
-                    gameplayClient.setAuth(authToken, gameID);
-
-                    if (line.toLowerCase().startsWith("leave")) {
-                        state = "Logged in";
                     }
                 }
 
