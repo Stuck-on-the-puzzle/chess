@@ -146,8 +146,6 @@ public class WebsocketHandler {
             return;
         }
 
-        System.out.println(move);
-
         try {
             game.makeMove(move);
         } catch (Exception e) {
@@ -155,10 +153,15 @@ public class WebsocketHandler {
             return;
         }
 
-        gameDao.updateGame(gameID, game);
-        GameData updatedGame = new GameData(gameID, gameData.whiteUsername(),
-                gameData.blackUsername(), gameData.gameName(), gameData.game());
+        System.out.println(game);
+        ChessGame temp = game;
 
+        gameDao.updateGame(gameID, game);
+        GameData updatedGame = gameDao.getGame(gameID);
+
+        if (temp.equals(updatedGame.game())) {
+            System.out.println("No Change!");
+        }
         broadcastToGame(gameID, new LoadGameMessage(updatedGame));
 
         String moveMessage = String.format("%s moved from %s to %s",
