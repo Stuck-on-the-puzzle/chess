@@ -1,13 +1,12 @@
 package ui;
 
-import Websocket.ServerMessageObserver;
-import Websocket.WebSocketFacade;
+import websocket.ServerMessageObserver;
+import websocket.WebSocketFacade;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
-import org.glassfish.grizzly.http.server.Response;
 
 import java.io.IOException;
 import java.util.*;
@@ -124,7 +123,7 @@ public class GameplayClient {
     public String resign() throws ResponseException {
         try {
             ws.resign(authToken, gameID);
-            return "You have resigned. Game Over";
+            return "";
         } catch (IOException e) {
             throw new ResponseException(500, "Failed to resign");
         }

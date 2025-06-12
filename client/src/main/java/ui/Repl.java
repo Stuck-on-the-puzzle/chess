@@ -1,6 +1,6 @@
 package ui;
 
-import Websocket.ServerMessageObserver;
+import websocket.ServerMessageObserver;
 import chess.ChessGame;
 import exception.ResponseException;
 import model.GameData;
@@ -9,6 +9,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Repl implements ServerMessageObserver {
@@ -32,108 +33,114 @@ public class Repl implements ServerMessageObserver {
     }
 
     public void run() {
-        String whiteKing = "♔";
-        String blackKing = "♚";
         System.out.println("♚ Welcome to Chess. Type help to get started ♚");
         Scanner scanner = new Scanner(System.in);
-        var result = "";
+        String result = "";
+
         while (!result.equals("quit")) {
             printPrompt();
 
             String line = scanner.nextLine();
 
             try {
-                if (state.equals("Logged Out")) {
-                    result = preLoginClient.eval(line);
-
-                    if (result.startsWith("Logged in as")) {
-                        String[] parts = result.split(" ");
-                        this.username = parts[3];
-                        authToken = parts[6];
-                        postLoginClient.setAuthToken(authToken);
-                        state = "Logged in";
-                        result = "Logged in as " + username;
-                    }
-                }
-
-                else if (state.equals("Logged in")) {
-                    result = postLoginClient.eval(line);
-
-
-                    if (line.toLowerCase().startsWith("join")) {
-                        String[] parts = result.split(" ");
-                        if (parts.length == 6) {
-                            gameID = Integer.parseInt(parts[2]);
-                            authToken = parts[5];
-                            state = "Playing";
-                            this.game = postLoginClient.getGame(gameID);
-                            gameplayClient.setAuth(authToken, gameID);
-                            gameplayClient.connectToWs(authToken, gameID);
-                            result = "Joined Game!";
-                        }
-                    }
-
-                    if (line.toLowerCase().startsWith("observe")) {
-                        String[] parts = result.split(" ");
-                        gameID = Integer.parseInt(parts[2]);
-                        authToken = parts[3];
-                        int numID = Integer.parseInt(parts[4]);
-                        state = "Observing";
-                        GameData game = postLoginClient.getGame(gameID);
-                        gameplayClient.setAuth(authToken, gameID);
-                        gameplayClient.connectToWs(authToken, gameID);
-                        result = "Observing Game: " + numID;
-
-                    }
-
-                    if (line.toLowerCase().startsWith("logout")) {
-                        state = "Logged Out";
-                        username = null;
-                        authToken = null;
-                    }
-                }
-
-                else if (state.equals("Playing") || state.equals("Observing")) {
-                    if (line.toLowerCase().startsWith("resign")) {
-                        System.out.print("Are you sure you want to resign? (y/n): ");
-                        String response = scanner.nextLine().trim().toLowerCase();
-                        if (response.equals("y") || response.equals("yes")) {
-                            result = gameplayClient.resign();
-
-                        }
-                        else {
-                            result = "Resign cancelled";
-                        }
-                    }
-
-                    else {
-                        result = gameplayClient.eval(line);
-                        gameplayClient.setAuth(authToken, gameID);
-
-                        if (line.toLowerCase().startsWith("leave")) {
-                            state = "Logged in";
-                        }
-                    }
+                switch (state) {
+                    case "Logged Out" -> result = handleLoggedOut(line);
+                    case "Logged in" -> result = handleLoggedIn(line);
+                    case "Playing", "Observing" -> result = handlePlayingOrObserving(line, scanner);
+                    default -> result = "Unknown state";
                 }
 
                 System.out.println(result);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                System.out.print(e.toString());
             }
         }
+
         System.out.println();
     }
 
+    private String handleLoggedOut(String line) {
+        String result = preLoginClient.eval(line);
+
+        if (result.startsWith("Logged in as")) {
+            String[] parts = result.split(" ");
+            this.username = parts[3];
+            this.authToken = parts[6];
+            postLoginClient.setAuthToken(authToken);
+            state = "Logged in";
+            return "Logged in as " + username;
+        }
+
+        return result;
+    }
+
+    private String handleLoggedIn(String line) throws IOException, ResponseException {
+        String result = postLoginClient.eval(line);
+
+        String lowerLine = line.toLowerCase();
+
+        if (lowerLine.startsWith("join")) {
+            String[] parts = result.split(" ");
+            if (parts.length == 6) {
+                gameID = Integer.parseInt(parts[2]);
+                authToken = parts[5];
+                state = "Playing";
+                this.game = postLoginClient.getGame(gameID);
+                gameplayClient.setAuth(authToken, gameID);
+                gameplayClient.connectToWs(authToken, gameID);
+                return "Joined Game!";
+            }
+        } else if (lowerLine.startsWith("observe")) {
+            String[] parts = result.split(" ");
+            if (parts.length >= 5) {
+                gameID = Integer.parseInt(parts[2]);
+                authToken = parts[3];
+                int numID = Integer.parseInt(parts[4]);
+                state = "Observing";
+                GameData game = postLoginClient.getGame(gameID);
+                gameplayClient.setAuth(authToken, gameID);
+                gameplayClient.connectToWs(authToken, gameID);
+                return "Observing Game: " + numID;
+            }
+        } else if (lowerLine.startsWith("logout")) {
+            state = "Logged Out";
+            username = null;
+            authToken = null;
+            return "Logged out.";
+        }
+
+        return result;
+    }
+
+    private String handlePlayingOrObserving(String line, Scanner scanner) throws ResponseException {
+        String lowerLine = line.toLowerCase();
+
+        if (lowerLine.startsWith("resign")) {
+            System.out.print("Are you sure you want to resign? (y/n): ");
+            String response = scanner.nextLine().trim().toLowerCase();
+            if (response.equals("y") || response.equals("yes")) {
+                return gameplayClient.resign();
+            } else {
+                return "Resign cancelled";
+            }
+        } else {
+            String result = gameplayClient.eval(line);
+            gameplayClient.setAuth(authToken, gameID);
+
+            if (lowerLine.startsWith("leave")) {
+                state = "Logged in";
+            }
+            return result;
+        }
+    }
+
     private void printPrompt() {
-        if (state.equals("Logged Out")) {
-            System.out.print("[LOGGED OUT] >>> ");
-        } else if (state.equals("Logged in")) {
-            System.out.print("[LOGGED IN as " + username + "] >>> ");
-        } else if (state.equals("Playing")) {
-            System.out.print("[PLAYING CHESS] >>> ");
-        } else if (state.equals("Observing")) {
-            System.out.print("[OBSERVING CHESS] >>> ");
+        switch (state) {
+            case "Logged Out" -> System.out.print("[LOGGED OUT] >>> ");
+            case "Logged in" -> System.out.print("[LOGGED IN as " + username + "] >>> ");
+            case "Playing" -> System.out.print("[PLAYING CHESS] >>> ");
+            case "Observing" -> System.out.print("[OBSERVING CHESS] >>> ");
+            default -> System.out.print("[UNKNOWN STATE] >>> ");
         }
     }
 
@@ -145,7 +152,6 @@ public class Repl implements ServerMessageObserver {
                 System.out.println(note.getMessage());
                 printPrompt();
             }
-
             case LOAD_GAME -> {
                 var loadMessage = (LoadGameMessage) message;
                 GameData gameData = loadMessage.getGame();
@@ -157,16 +163,13 @@ public class Repl implements ServerMessageObserver {
                 boardPrinter = new PrintBoard(gameData.game().getBoard());
                 boardPrinter.setReversed(color == ChessGame.TeamColor.BLACK);
                 boardPrinter.printBoard();
-                // maybe print info such as whose turn it is?
                 printPrompt();
             }
-
             case ERROR -> {
                 var error = (ErrorMessage) message;
                 System.out.println(error.getMessage());
                 printPrompt();
             }
-
             default -> {
                 System.out.println("Unknown Message Type.");
                 printPrompt();
@@ -175,13 +178,10 @@ public class Repl implements ServerMessageObserver {
     }
 
     private ChessGame.TeamColor getColor() {
-        ChessGame.TeamColor color;
         if (this.username.equals(this.game.blackUsername())) {
-            color = ChessGame.TeamColor.BLACK;
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            return ChessGame.TeamColor.WHITE;
         }
-        else {
-            color = ChessGame.TeamColor.WHITE;
-        }
-        return color;
     }
 }

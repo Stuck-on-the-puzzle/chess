@@ -238,7 +238,7 @@ public class WebsocketHandler {
         gameDao.updateGame(gameID, game);
 
         String message = username + " has resigned. Game Over";
-        broadcastToGameExcept(gameID, session, new Notification(message));
+        broadcastToGame(gameID, new Notification(message));
 
     }
 
@@ -287,7 +287,9 @@ public class WebsocketHandler {
     }
 
     private String getPieceName(ChessPiece piece) {
-        if (piece == null) return "Unknown Piece";
+        if (piece == null) {
+            return "Unknown Piece";
+        }
         String color = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? "White" : "Black";
         String type = switch (piece.getPieceType()) {
             case KING -> "King";
