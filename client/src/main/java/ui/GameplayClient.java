@@ -106,6 +106,7 @@ public class GameplayClient {
                 promotion = null;
             }
             ChessMove move = getChessMove(start, stop, promotion);
+            System.out.println(move);
             ws.makeMove(authToken, gameID, move);
             return "Moving...";
         }

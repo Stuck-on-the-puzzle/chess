@@ -116,7 +116,7 @@ public class WebsocketHandler {
         }
     }
 
-    private void handleMakeMove(Session session, String username, MakeMove command) throws IOException, DataAccessException, InvalidMoveException {
+    private void handleMakeMove(Session session, String username, MakeMove command) throws IOException, DataAccessException {
         Integer gameID = Server.gameSessions.get(session);
         ChessMove move = command.getMove();
         if (gameID == null) {
@@ -145,6 +145,8 @@ public class WebsocketHandler {
             sendMessage(session, new ErrorMessage("Error: Not your turn"));
             return;
         }
+
+        System.out.println(move);
 
         try {
             game.makeMove(move);
